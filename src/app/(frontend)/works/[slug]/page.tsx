@@ -1,6 +1,5 @@
 /** 作品详情页：展示信息与 Figma 嵌入，右侧购买/升级侧栏。 */
 import Link from "next/link"
-import Image from "next/image"
 import { notFound } from "next/navigation"
 import prisma from "@/lib/prisma"
 import { getBaseUrl } from "@/lib/utils"
@@ -9,6 +8,7 @@ import { jsonToPlainText } from "@/lib/content-format"
 import { defaultNav } from "@/lib/nav-config"
 import { defaultSiteName } from "@/lib/page-copy"
 import { PurchaseSidebar } from "./PurchaseSidebar"
+import { ImageGallery } from "@/components/frontend/ImageGallery"
 
 interface WorkDetailPageProps {
   params: Promise<{ slug: string }>
@@ -134,24 +134,9 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             </div>
           )}
 
-          {/* 附加图片 */}
+          {/* 附加图片 - 等比缩放 + 全屏查看 */}
           {images.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 min-w-0">
-              {images.slice(0, 3).map((url, index) => (
-                <div
-                  key={index}
-                  className="w-full min-w-0 aspect-video rounded-xl border border-border bg-card/50 overflow-hidden relative"
-                >
-                  <Image
-                    src={url}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, 200px"
-                  />
-                </div>
-              ))}
-            </div>
+            <ImageGallery images={images} />
           )}
         </div>
 

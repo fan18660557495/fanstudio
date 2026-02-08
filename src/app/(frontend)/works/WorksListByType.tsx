@@ -109,21 +109,23 @@ export function WorksListByType({
                     {work.description && (
                       <CardDescriptionHtml html={work.description} className="mt-1" />
                     )}
-                    <div className="pt-3 flex items-end justify-between gap-2">
-                      <div className="flex flex-nowrap items-center gap-1.5 min-w-0 overflow-hidden">
+                    <div className="pt-3 flex flex-col gap-2">
+                      <div className="flex flex-wrap items-center gap-1">
                         {work.category?.name && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/70 font-medium shrink-0 max-w-[3.5rem] truncate" title={work.category.name}>{work.category.name}</span>
+                          <span className="text-[10px] leading-tight px-1.5 py-0.5 rounded bg-primary/5 text-primary/70 font-medium whitespace-nowrap" title={work.category.name}>{work.category.name}</span>
                         )}
                         {(work.tags ?? []).slice(0, 3).map((tag) => (
-                          <span key={tag.id} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
+                          <span key={tag.id} className="text-[10px] leading-tight px-1.5 py-0.5 rounded bg-muted text-muted-foreground whitespace-nowrap" title={tag.name}>{tag.name}</span>
                         ))}
                         {(work.tags?.length ?? 0) > 3 && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(work.tags?.length ?? 0) - 3}</span>
+                          <span className="text-[10px] leading-tight px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground whitespace-nowrap">+{(work.tags?.length ?? 0) - 3}</span>
                         )}
                       </div>
-                      <span className="font-serif text-2xl font-bold tracking-tight text-foreground leading-none shrink-0">
-                        <span className="text-sm font-normal text-muted-foreground mr-0.5">¥</span>{work.isFree ? 0 : (work.price ?? 0)}
-                      </span>
+                      {type === "design" && (
+                        <span className="font-serif text-xl font-bold tracking-tight text-foreground leading-none">
+                          <span className="text-xs font-normal text-muted-foreground mr-0.5">¥</span>{work.isFree ? 0 : (work.price ?? 0)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </GlowBorder>

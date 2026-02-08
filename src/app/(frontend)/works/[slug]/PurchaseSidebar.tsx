@@ -5,6 +5,12 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { GlowBorder } from "@/components/react-bits"
 
+/** 检测当前是否在微信内置浏览器 */
+function getIsWechat(): boolean {
+  if (typeof navigator === "undefined") return false
+  return /MicroMessenger/i.test(navigator.userAgent)
+}
+
 interface PurchaseSidebarProps {
   workId: string
   title: string
@@ -64,6 +70,13 @@ export function PurchaseSidebar({
   // ===== 查询弹窗 =====
   const [queryOpen, setQueryOpen] = useState(false)
   const [queryError, setQueryError] = useState("")
+
+  // ===== 微信环境 =====
+  const [isWechat, setIsWechat] = useState(false)
+
+  useEffect(() => {
+    setIsWechat(getIsWechat())
+  }, [])
 
   // ===== 购买弹窗 =====
   const [buyOpen, setBuyOpen] = useState(false)
@@ -136,7 +149,7 @@ export function PurchaseSidebar({
     setWechatCreateError(null)
   }
 
-  // 待支付时请求微信 Native 下单，获取二维码
+  // ========== Native 下单获取二维码 ==========
   useEffect(() => {
     if (!orderNo || wechatQrDataUrl || wechatCreateError !== null) return
     let cancelled = false
@@ -165,10 +178,11 @@ export function PurchaseSidebar({
     return () => { cancelled = true }
   }, [orderNo, wechatQrDataUrl, wechatCreateError])
 
-  // 展示二维码期间，轮询订单支付状态（每 3 秒）
+  // ========== 轮询订单支付状态（每 3 秒） ==========
   const hasAnyDelivery = !!(figmaUrl || deliveryUrl)
+  const shouldPoll = !!(orderNo && !hasAnyDelivery && wechatQrDataUrl)
   useEffect(() => {
-    if (!orderNo || !wechatQrDataUrl || hasAnyDelivery) return
+    if (!shouldPoll || !orderNo) return
     let cancelled = false
     const poll = setInterval(async () => {
       try {
@@ -182,7 +196,6 @@ export function PurchaseSidebar({
         if (data.status === "PAID") {
           if (data.figmaUrl) setFigmaUrl(data.figmaUrl)
           if (data.deliveryUrl) setDeliveryUrl(data.deliveryUrl)
-          // 如果两个都没有也标记完成（防止卡住）
           if (!data.figmaUrl && !data.deliveryUrl) {
             setFigmaUrl("")
             setDeliveryUrl("")
@@ -193,7 +206,7 @@ export function PurchaseSidebar({
       }
     }, 3000)
     return () => { cancelled = true; clearInterval(poll) }
-  }, [orderNo, wechatQrDataUrl, hasAnyDelivery])
+  }, [shouldPoll, orderNo])
 
   async function handleBuy() {
     if (!email.trim() || !email.includes("@")) {
@@ -673,31 +686,47 @@ export function PurchaseSidebar({
                         <p className="text-xs text-muted-foreground">订单号: {orderNo}</p>
                       </div>
                     </div>
+
                     {wechatCreateLoading ? (
                       <div className="flex flex-col items-center justify-center py-8 gap-3">
                         <i className="ri-loader-4-line animate-spin text-2xl text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">正在生成支付二维码…</p>
                       </div>
                     ) : wechatQrDataUrl ? (
-                      <>
-                        <div className="flex flex-col items-center gap-3 py-2">
-                          <img
-                            src={wechatQrDataUrl}
-                            alt="微信扫码支付"
-                            className="w-[260px] h-[260px] rounded-xl border border-border bg-white p-2"
-                          />
-                          <p className="text-sm font-medium text-foreground">请使用微信扫码支付</p>
-                          <p className="text-xs text-muted-foreground">
-                            支付成功后将发邮件到您的邮箱，也可通过「查询购买记录」获取资源
-                          </p>
-                        </div>
-                      </>
+                      <div className="flex flex-col items-center gap-3 py-2">
+                        <img
+                          src={wechatQrDataUrl}
+                          alt="微信扫码支付"
+                          className="w-[260px] h-[260px] rounded-xl border border-border bg-white p-2"
+                        />
+                        <p className="text-sm font-medium text-foreground">请使用微信扫码支付</p>
+                        {isWechat && (
+                          <div className="w-full rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 space-y-1.5">
+                            <p className="text-xs font-medium text-amber-600 flex items-center gap-1">
+                              <i className="ri-information-line" /> 微信内支付指引
+                            </p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              1. 长按上方二维码，选择「保存图片」<br />
+                              2. 返回微信首页 → 右上角「+」→「扫一扫」<br />
+                              3. 点击右下角「从相册选取」，选择保存的二维码完成支付
+                            </p>
+                            <div className="border-t border-amber-500/10 pt-1.5 mt-1.5">
+                              <p className="text-xs text-muted-foreground">
+                                或点击右上角 <span className="font-medium">⋯</span> →「在浏览器中打开」后直接扫码
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          支付成功后将发邮件到您的邮箱，也可通过「查询购买记录」获取资源
+                        </p>
+                      </div>
                     ) : (
                       <>
                         <p className="text-sm text-muted-foreground text-center">
                           {wechatCreateError ?? "微信支付功能即将上线，敬请期待"}
                         </p>
-                        {/* ⚠️ 测试按钮：未配置微信或开发环境可用 */}
+                        {/* 测试按钮：未配置微信或开发环境可用 */}
                         <div className="border-t border-dashed border-border pt-4">
                           <p className="text-xs text-muted-foreground/60 text-center mb-2">— 测试模式 —</p>
                           <button
@@ -714,6 +743,7 @@ export function PurchaseSidebar({
                         </div>
                       </>
                     )}
+
                     {buyError && (
                       <div className="rounded-lg bg-destructive/10 text-destructive px-3 py-2 text-sm">
                         {buyError}
