@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/require-admin"
 import prisma from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
@@ -23,10 +23,8 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 })
-  }
+  const check = await requireAdmin()
+  if (!check.authorized) return check.response
   const { id } = await params
   const body = await request.json()
   const { title, slug, description, videoUrl, thumbnail, sortOrder, categoryId, tagIds } = body
@@ -54,10 +52,8 @@ export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 })
-  }
+  const check = await requireAdmin()
+  if (!check.authorized) return check.response
   const { id } = await params
   await prisma.videoTutorial.delete({ where: { id } })
   return NextResponse.json({ ok: true })

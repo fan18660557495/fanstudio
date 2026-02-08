@@ -19,6 +19,7 @@ export default async function AdminDashboardLayout({
 
   const settings = await getSettingsRow()
   const siteName = normalizeSiteName(settings?.siteName)
+  const isViewer = (session.user as { role?: string }).role === "VIEWER"
 
   return (
     <AdminThemeWrapper>
@@ -26,6 +27,12 @@ export default async function AdminDashboardLayout({
         <div className="fixed inset-0 pointer-events-none z-0">
           <div className="absolute inset-0 grid-bg opacity-[0.03]" />
         </div>
+        {isViewer && (
+          <div className="sticky top-0 z-50 bg-amber-500/90 text-amber-950 text-center text-sm font-medium py-2 px-4 backdrop-blur-sm">
+            <i className="ri-eye-line mr-1.5 align-middle" />
+            当前为体验账户，仅供浏览，无法修改内容
+          </div>
+        )}
         <AdminDashboardClient siteName={siteName}>{children}</AdminDashboardClient>
       </div>
     </AdminThemeWrapper>

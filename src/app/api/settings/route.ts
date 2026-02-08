@@ -3,7 +3,7 @@
  * PATCH: 更新网站设置，需登录。
  */
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/require-admin"
 import prisma from "@/lib/prisma"
 import { getSettingsRow } from "@/lib/settings-db"
 import { defaultNav, type NavConfig } from "@/lib/nav-config"
@@ -72,10 +72,8 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 })
-  }
+  const check = await requireAdmin()
+  if (!check.authorized) return check.response
   try {
     const body = await request.json()
     const { siteName, avatar, socialLinks, about, nav, pageCopy, theme, footer } = body

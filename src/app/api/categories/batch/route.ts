@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/require-admin"
 import prisma from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
 /** 批量删除分类：先解除关联再删除。 */
 export async function DELETE(request: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 })
-  }
+  const check = await requireAdmin()
+  if (!check.authorized) return check.response
   const { ids } = await request.json()
   if (!Array.isArray(ids) || ids.length === 0) {
     return NextResponse.json({ error: "ids 必填" }, { status: 400 })

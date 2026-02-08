@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/require-admin"
 import prisma from "@/lib/prisma"
 import { sanitizeWorkForPublic } from "@/lib/sanitize-work"
 
@@ -60,10 +61,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 })
-  }
+  const check = await requireAdmin()
+  if (!check.authorized) return check.response
   const body = await request.json()
   const {
     title,
@@ -95,7 +94,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "slug 已存在" }, { status: 400 })
   }
 
-  const authorExists = await prisma.user.findUnique({ where: { id: session.user.id } })
+  const authorExists = await prisma.user.findUnique({ where: { id: check.userId } })
   if (!authorExists) {
     return NextResponse.json(
       { error: "当前登录用户在本数据库中不存在，请退出登录后重新登录" },
@@ -121,7 +120,7 @@ export async function POST(request: NextRequest) {
       demoQrCode: demoQrCode || null,
       status: status === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
       categoryId: categoryId || null,
-      authorId: session.user.id,
+      authorId: check.userId,
     },
   })
   return NextResponse.json(work)

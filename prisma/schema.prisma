@@ -11,10 +11,16 @@ datasource db {
 }
 
 // ==================== 用户模型 ====================
+enum Role {
+  ADMIN   // 管理员：完整读写权限
+  VIEWER  // 体验账户：仅可浏览后台，无法修改
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
+  role      Role     @default(ADMIN)
   name      String?  @db.VarChar(100)
   avatar    String?  @db.Text
   bio       String?  @db.Text

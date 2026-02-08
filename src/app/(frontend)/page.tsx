@@ -242,7 +242,7 @@ function HeroSection({
 
         <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.95] tracking-tight mb-6 overflow-visible">
           <SplitText text={heroGreeting} className="block text-foreground" delay={0.2} />
-          <span className="block mt-2 whitespace-nowrap overflow-visible">
+          <span className="block mt-2 md:whitespace-nowrap overflow-visible">
             <SplitText text={heroPrefix} className="text-foreground" delay={0.5} duration={SPLIT_DURATION} />
             <HeroBrandName name={name} prefixLength={heroPrefix.length} prefixDelay={0.5} />
           </span>

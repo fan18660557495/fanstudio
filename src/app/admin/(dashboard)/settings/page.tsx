@@ -366,6 +366,7 @@ export default function SettingsPage() {
           <TabsTrigger value="navpage">导航与页面</TabsTrigger>
           <TabsTrigger value="profile">关于我 / 头像</TabsTrigger>
           <TabsTrigger value="theme">外观主题</TabsTrigger>
+          <TabsTrigger value="security">账户安全</TabsTrigger>
         </TabsList>
 
         {/* ==================== 基本设置 ==================== */}
@@ -1210,7 +1211,115 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* ==================== 账户安全 ==================== */}
+        <TabsContent value="security" className="space-y-6">
+          <ChangePasswordCard />
+        </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+/** 密码输入框（带显示/隐藏切换眼睛按钮）。 */
+function PasswordInput(props: React.ComponentProps<typeof Input> & { value: string }) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className="relative">
+      <Input {...props} type={visible ? "text" : "password"} className="pr-10" />
+      <button
+        type="button"
+        tabIndex={-1}
+        onClick={() => setVisible(!visible)}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <i className={visible ? "ri-eye-off-line" : "ri-eye-line"} />
+      </button>
+    </div>
+  )
+}
+
+/** 修改密码卡片组件。 */
+function ChangePasswordCard() {
+  const [oldPassword, setOldPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  async function handleChangePassword() {
+    if (!oldPassword.trim()) {
+      toast.error("请输入当前密码")
+      return
+    }
+    if (newPassword.length < 6) {
+      toast.error("新密码至少 6 位")
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("两次输入的新密码不一致")
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await fetch("/api/user/change-password", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        toast.error(data.error || "修改失败")
+        return
+      }
+      toast.success("密码修改成功")
+      setOldPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
+    } catch {
+      toast.error("网络错误")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+      <CardHeader>
+        <CardTitle>修改密码</CardTitle>
+        <CardDescription>修改当前登录账户的密码</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4 max-w-md">
+        <div className="space-y-2">
+          <Label>当前密码</Label>
+          <PasswordInput
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+            placeholder="请输入当前密码"
+          />
+        </div>
+        <Separator />
+        <div className="space-y-2">
+          <Label>新密码</Label>
+          <PasswordInput
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="至少 6 位"
+          />
+          <p className="text-xs text-muted-foreground">密码长度至少 6 位，建议包含字母和数字</p>
+        </div>
+        <div className="space-y-2">
+          <Label>确认新密码</Label>
+          <PasswordInput
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="再次输入新密码"
+            onKeyDown={(e) => { if (e.key === "Enter") handleChangePassword() }}
+          />
+        </div>
+        <Button onClick={handleChangePassword} disabled={saving}>
+          {saving ? "保存中…" : "修改密码"}
+        </Button>
+      </CardContent>
+    </Card>
   )
 }

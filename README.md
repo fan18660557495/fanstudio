@@ -6,8 +6,9 @@
 
 **在线演示：** [https://studio.fanyunyun.fun](https://studio.fanyunyun.fun)
 
-> 后台默认登录账号：`admin@example.com` / 密码：`admin123`
-> 登录后请及时修改密码。
+> **体验后台：** 邮箱 `demo@example.com` / 密码 `demo123`（只读，可浏览所有功能）
+>
+> 管理员账号：`admin@example.com` / 密码 `admin123`（登录后请及时修改密码）
 
 ![前台首页](docs/screenshots/前台首页.png)
 

@@ -11,16 +11,33 @@ async function main() {
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@example.com" },
-    update: { password: hashedPassword, name: "Fan", bio: "一名热爱设计的创作者，专注于用户体验与视觉设计。" },
+    update: { password: hashedPassword, name: "Fan", role: "ADMIN", bio: "一名热爱设计的创作者，专注于用户体验与视觉设计。" },
     create: {
       email: "admin@example.com",
       password: hashedPassword,
       name: "Fan",
+      role: "ADMIN",
       bio: "一名热爱设计的创作者，专注于用户体验与视觉设计。",
     },
   })
 
   console.log("管理员用户已创建:", admin.email)
+
+  // 创建体验账户（只读，用于公开演示）
+  const demoPassword = await bcrypt.hash("demo123", 10)
+  const demo = await prisma.user.upsert({
+    where: { email: "demo@example.com" },
+    update: { password: demoPassword, name: "体验用户", role: "VIEWER" },
+    create: {
+      email: "demo@example.com",
+      password: demoPassword,
+      name: "体验用户",
+      role: "VIEWER",
+      bio: "这是一个只读体验账户，可以浏览后台所有功能，但无法修改内容。",
+    },
+  })
+
+  console.log("体验账户已创建:", demo.email)
 
   // 创建默认分类
   const postCategories = [
@@ -97,10 +114,14 @@ async function main() {
   console.log("数据库初始化完成！")
   console.log("")
   console.log("默认管理员账号:")
-  console.log("邮箱: admin@example.com")
-  console.log("密码: admin123")
+  console.log("  邮箱: admin@example.com")
+  console.log("  密码: admin123")
   console.log("")
-  console.log("请登录后立即修改密码！")
+  console.log("体验账户（只读）:")
+  console.log("  邮箱: demo@example.com")
+  console.log("  密码: demo123")
+  console.log("")
+  console.log("请登录管理员账号后立即修改密码！")
 }
 
 main()
