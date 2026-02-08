@@ -149,8 +149,9 @@ export function PurchaseSidebar({
     setWechatCreateError(null)
   }
 
-  // ========== Native 下单获取二维码 ==========
+  // ========== Native 下单获取二维码（微信内跳过，直接引导去电脑端）==========
   useEffect(() => {
+    if (isWechat) return
     if (!orderNo || wechatQrDataUrl || wechatCreateError !== null) return
     let cancelled = false
     setWechatCreateLoading(true)
@@ -687,7 +688,38 @@ export function PurchaseSidebar({
                       </div>
                     </div>
 
-                    {wechatCreateLoading ? (
+                    {isWechat ? (
+                      /* --- 微信内：引导去电脑端支付 --- */
+                      <div className="flex flex-col items-center gap-4 py-4">
+                        <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center">
+                          <i className="ri-computer-line text-amber-500 text-3xl" />
+                        </div>
+                        <div className="text-center space-y-1.5">
+                          <p className="text-sm font-medium text-foreground">请在电脑端完成支付</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            微信内暂不支持扫码支付，请复制下方链接<br />
+                            在电脑浏览器中打开，使用微信扫码付款
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const url = window.location.href.split("?")[0]
+                            navigator.clipboard.writeText(url).then(() => {
+                              setCopied(true)
+                              setTimeout(() => setCopied(false), 2000)
+                            })
+                          }}
+                          className="w-full py-2.5 rounded-xl border border-border bg-accent/50 hover:bg-accent
+                            text-foreground font-medium text-sm flex items-center justify-center gap-2 transition-all"
+                        >
+                          <i className={copied ? "ri-check-line text-green-500" : "ri-link"} />
+                          {copied ? "已复制，去电脑端打开吧" : "复制页面链接"}
+                        </button>
+                        <p className="text-xs text-muted-foreground text-center">
+                          支付成功后将发邮件到您的邮箱<br />也可通过「查询购买记录」获取资源
+                        </p>
+                      </div>
+                    ) : wechatCreateLoading ? (
                       <div className="flex flex-col items-center justify-center py-8 gap-3">
                         <i className="ri-loader-4-line animate-spin text-2xl text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">正在生成支付二维码…</p>
@@ -700,23 +732,6 @@ export function PurchaseSidebar({
                           className="w-[260px] h-[260px] rounded-xl border border-border bg-white p-2"
                         />
                         <p className="text-sm font-medium text-foreground">请使用微信扫码支付</p>
-                        {isWechat && (
-                          <div className="w-full rounded-xl bg-amber-500/5 border border-amber-500/20 p-3 space-y-1.5">
-                            <p className="text-xs font-medium text-amber-600 flex items-center gap-1">
-                              <i className="ri-information-line" /> 微信内支付指引
-                            </p>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              1. 长按上方二维码，选择「保存图片」<br />
-                              2. 返回微信首页 → 右上角「+」→「扫一扫」<br />
-                              3. 点击右下角「从相册选取」，选择保存的二维码完成支付
-                            </p>
-                            <div className="border-t border-amber-500/10 pt-1.5 mt-1.5">
-                              <p className="text-xs text-muted-foreground">
-                                或点击右上角 <span className="font-medium">⋯</span> →「在浏览器中打开」后直接扫码
-                              </p>
-                            </div>
-                          </div>
-                        )}
                         <p className="text-xs text-muted-foreground">
                           支付成功后将发邮件到您的邮箱，也可通过「查询购买记录」获取资源
                         </p>

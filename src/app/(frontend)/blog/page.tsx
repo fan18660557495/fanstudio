@@ -138,10 +138,10 @@ export default function BlogPage() {
                             <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/70 font-medium shrink-0 max-w-[3.5rem] truncate" title={post.category.name}>{post.category.name}</span>
                           )}
                           {(post.tags ?? []).slice(0, 3).map((tag) => (
-                            <span key={tag.id} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
+                            <span key={tag.id} className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
                           ))}
                           {(post.tags?.length ?? 0) > 3 && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(post.tags?.length ?? 0) - 3}</span>
+                            <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(post.tags?.length ?? 0) - 3}</span>
                           )}
                         </div>
                       )}

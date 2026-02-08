@@ -75,10 +75,10 @@ function TutorialExpandCard({ item, embedUrl }: { item: Tutorial; embedUrl: stri
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/70 font-medium shrink-0 max-w-[3.5rem] truncate" title={item.category.name}>{item.category.name}</span>
                 )}
                 {(item.tags ?? []).slice(0, 3).map((tag) => (
-                  <span key={tag.id} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
+                  <span key={tag.id} className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
                 ))}
                 {(item.tags?.length ?? 0) > 3 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(item.tags?.length ?? 0) - 3}</span>
+                  <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(item.tags?.length ?? 0) - 3}</span>
                 )}
               </div>
             )}
@@ -191,10 +191,10 @@ export default function TutorialsPage() {
                                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/70 font-medium shrink-0 max-w-[3.5rem] truncate" title={item.category.name}>{item.category.name}</span>
                                 )}
                                 {(item.tags ?? []).slice(0, 3).map((tag) => (
-                                  <span key={tag.id} className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
+                                  <span key={tag.id} className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
                                 ))}
                                 {(item.tags?.length ?? 0) > 3 && (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(item.tags?.length ?? 0) - 3}</span>
+                                  <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(item.tags?.length ?? 0) - 3}</span>
                                 )}
                               </div>
                             )}
