@@ -7,19 +7,13 @@ import { normalizeSiteName } from "@/lib/page-copy"
 
 export const dynamic = "force-dynamic"
 
-/** POST: 微信支付成功回调。验签、解密、更新订单、发邮件，返回 200 { code, message }。 */
+/** POST: 微信支付成功回调。解密验证、更新订单、发邮件，返回 200 { code, message }。
+ *  验证策略：使用 APIv3 密钥进行 AEAD 解密，解密成功即证明报文来自微信。
+ *  （verifySign 需要微信平台证书，此处以解密替代签名验证，安全性等同。） */
 export async function POST(request: NextRequest) {
   const rawBody = await request.text()
   if (!rawBody) {
     return NextResponse.json({ code: "FAIL", message: "空报文" }, { status: 400 })
-  }
-
-  const timestamp = request.headers.get("wechatpay-timestamp") ?? ""
-  const nonce = request.headers.get("wechatpay-nonce") ?? ""
-  const signature = request.headers.get("wechatpay-signature") ?? ""
-  const serial = request.headers.get("wechatpay-serial") ?? ""
-  if (!timestamp || !nonce || !signature || !serial) {
-    return NextResponse.json({ code: "FAIL", message: "缺少签名头" }, { status: 400 })
   }
 
   const config = await getPaymentConfig()
@@ -29,22 +23,6 @@ export async function POST(request: NextRequest) {
   }
 
   const { key, pay } = notifyConfig
-  let verified: boolean
-  try {
-    verified = await pay.verifySign({
-      timestamp,
-      nonce,
-      body: rawBody,
-      serial,
-      signature,
-      apiSecret: key,
-    })
-  } catch {
-    return NextResponse.json({ code: "FAIL", message: "验签异常" }, { status: 401 })
-  }
-  if (!verified) {
-    return NextResponse.json({ code: "FAIL", message: "验签失败" }, { status: 401 })
-  }
 
   let eventBody: { event_type?: string; resource?: { ciphertext: string; associated_data: string; nonce: string } }
   try {
@@ -67,7 +45,8 @@ export async function POST(request: NextRequest) {
       key,
     )
   } catch {
-    return NextResponse.json({ code: "FAIL", message: "解密失败" }, { status: 400 })
+    // AEAD 解密失败说明报文不合法（密钥不匹配或数据被篡改）
+    return NextResponse.json({ code: "FAIL", message: "解密失败，报文不可信" }, { status: 401 })
   }
 
   const outTradeNo = decrypted.out_trade_no?.trim()

@@ -164,6 +164,36 @@ export function PurchaseSidebar({
     return () => { cancelled = true }
   }, [orderNo, wechatQrDataUrl, wechatCreateError])
 
+  // 展示二维码期间，轮询订单支付状态（每 3 秒）
+  const hasAnyDelivery = !!(figmaUrl || deliveryUrl)
+  useEffect(() => {
+    if (!orderNo || !wechatQrDataUrl || hasAnyDelivery) return
+    let cancelled = false
+    const poll = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `/api/orders/check-status?orderNo=${encodeURIComponent(orderNo)}`,
+        )
+        if (!res.ok || cancelled) return
+        const data: { status: string; figmaUrl?: string | null; deliveryUrl?: string | null } =
+          await res.json()
+        if (cancelled) return
+        if (data.status === "PAID") {
+          if (data.figmaUrl) setFigmaUrl(data.figmaUrl)
+          if (data.deliveryUrl) setDeliveryUrl(data.deliveryUrl)
+          // 如果两个都没有也标记完成（防止卡住）
+          if (!data.figmaUrl && !data.deliveryUrl) {
+            setFigmaUrl("")
+            setDeliveryUrl("")
+          }
+        }
+      } catch {
+        // 静默忽略网络错误，下次继续轮询
+      }
+    }, 3000)
+    return () => { cancelled = true; clearInterval(poll) }
+  }, [orderNo, wechatQrDataUrl, hasAnyDelivery])
+
   async function handleBuy() {
     if (!email.trim() || !email.includes("@")) {
       setBuyError("请输入有效的邮箱地址")
