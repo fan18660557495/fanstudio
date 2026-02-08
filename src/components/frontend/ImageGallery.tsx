@@ -111,16 +111,6 @@ export function ImageGallery({ images }: ImageGalleryProps) {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
-          {/* 关闭按钮 */}
-          <button
-            type="button"
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 z-10 w-10 h-10 flex items-center justify-center
-              rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20 transition-colors"
-          >
-            <i className="ri-close-line text-xl" />
-          </button>
-
           {/* 计数器 */}
           {images.length > 1 && (
             <div className="absolute top-4 left-4 z-10 text-white/70 text-sm font-medium
@@ -160,14 +150,11 @@ export function ImageGallery({ images }: ImageGalleryProps) {
             className="w-full h-full flex items-center justify-center p-4 sm:p-8"
             onClick={(e) => e.stopPropagation()}
           >
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={images[currentIndex]}
               alt={`图片 ${currentIndex + 1}`}
-              width={1920}
-              height={1080}
-              className="max-w-full max-h-full w-auto h-auto object-contain select-none"
-              sizes="100vw"
-              priority
+              className="max-w-full max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)] w-auto h-auto object-contain select-none"
             />
           </div>
 
