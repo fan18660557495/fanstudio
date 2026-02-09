@@ -560,7 +560,7 @@ export default function SettingsPage() {
                               </div>
                               <p className="text-xs text-muted-foreground">
                                 填写{label}号/名称，或上传二维码图片
-                                {key === "wechat" && "。上传后将同步展示用户购买邮件内，不填则不显示"}
+                                {key === "wechat" && "。上传后将同步展示用户赞助邮件内，不填则不显示"}
                               </p>
                             </>
                           )}
@@ -643,7 +643,7 @@ export default function SettingsPage() {
                     <Label htmlFor="worksDesignDesc">页面介绍</Label>
                     <Input
                       id="worksDesignDesc"
-                      placeholder="精选设计作品，部分支持购买下载源文件"
+                      placeholder="精选设计作品，部分支持赞助下载源文件"
                       value={worksDesignDesc}
                       onChange={(e) => setWorksDesignDesc(e.target.value)}
                     />

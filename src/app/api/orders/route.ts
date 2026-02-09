@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   })
   if (existingPaidOrder) {
     return NextResponse.json({
-      error: "您已购买过此版本",
+      error: "您已赞助过此版本",
       figmaUrl: targetVersion?.figmaUrl || work.figmaUrl || null,
       deliveryUrl: targetVersion?.deliveryUrl || work.deliveryUrl || null,
     }, { status: 409 })

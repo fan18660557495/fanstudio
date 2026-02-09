@@ -3,8 +3,10 @@ import { randomBytes } from "crypto"
 import { auth } from "@/lib/auth"
 import { requireAdmin } from "@/lib/require-admin"
 import prisma from "@/lib/prisma"
-import { sendOrderEmail } from "@/lib/email"
+import { sendOrderEmail, sendRefundEmail } from "@/lib/email"
 import { normalizeSiteName } from "@/lib/page-copy"
+import { getPaymentConfig } from "@/lib/payment-config"
+import { createWxPayFromConfig } from "@/lib/wechatpay"
 
 export const dynamic = "force-dynamic"
 
@@ -68,6 +70,39 @@ export async function PUT(
     )
   }
 
+  // 退款：先调用微信退款 API，成功后再更新订单并发邮件
+  if (status === "REFUNDED") {
+    const config = await getPaymentConfig()
+    const pay = createWxPayFromConfig(config)
+    if (!pay) {
+      return NextResponse.json(
+        { error: "未配置微信支付，无法执行原路退款" },
+        { status: 400 },
+      )
+    }
+    const amountYuan = Number(existing.amount)
+    const totalFen = Math.round(amountYuan * 100)
+    const outRefundNo = `${existing.orderNo}-R`
+    try {
+      await pay.refunds({
+        out_trade_no: existing.orderNo,
+        out_refund_no: outRefundNo,
+        amount: {
+          total: totalFen,
+          currency: "CNY",
+          refund: totalFen,
+        },
+        reason: "管理员操作退款",
+      })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "微信退款请求失败"
+      return NextResponse.json(
+        { error: `退款失败：${message}` },
+        { status: 502 },
+      )
+    }
+  }
+
   // 如果标记为已支付且没有 downloadToken，则生成一个
   const needsToken = status === "PAID" && !existing.downloadToken
   const token = needsToken ? randomBytes(32).toString("hex") : undefined
@@ -84,6 +119,24 @@ export async function PUT(
       ...(isRefund && { downloadToken: null, downloadCount: 0 }),
     },
   })
+
+  // 退款成功后发送退款通知邮件
+  if (isRefund) {
+    const work = await prisma.work.findUnique({
+      where: { id: order.workId },
+      select: { title: true },
+    })
+    if (work) {
+      const settings = await prisma.settings.findUnique({ where: { id: "settings" } })
+      sendRefundEmail({
+        to: order.buyerEmail,
+        siteName: normalizeSiteName(settings?.siteName),
+        workTitle: work.title,
+        orderNo: order.orderNo,
+        amount: Number(order.amount),
+      }).catch(() => {})
+    }
+  }
 
   // 管理员手动标记为已支付时发送邮件
   if (status === "PAID" && existing.status === "PENDING") {

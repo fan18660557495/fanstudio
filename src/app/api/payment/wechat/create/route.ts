@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   const description = order.work?.title
     ? `${order.work.title}${order.version ? ` V${order.version.version}` : ""}`
-    : "作品购买"
+    : "作品赞助"
   const safeDesc = description.slice(0, 127)
 
   try {

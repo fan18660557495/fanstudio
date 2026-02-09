@@ -15,7 +15,7 @@ export type PageCopy = {
 }
 
 export const defaultPageCopy: PageCopy = {
-  worksDesignDesc: "精选设计作品，部分支持购买下载源文件",
+  worksDesignDesc: "精选设计作品，部分支持赞助下载源文件",
   worksDevDesc: "开源项目与开发作品展示",
   blogDesc: "分享设计思考、工具技巧与行业见解",
   tutorialsDesc: "视频类教材合集，包含 B 站、YouTube 等",

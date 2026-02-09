@@ -119,7 +119,7 @@ export function PurchaseSidebar({
       }
 
       if (!data.purchased) {
-        setQueryError("该邮箱暂无购买记录")
+        setQueryError("该邮箱暂无赞助记录")
         return
       }
 
@@ -417,7 +417,7 @@ export function PurchaseSidebar({
                 {displayPrice}
               </span>
               {!isFree && (
-                <span className="text-sm text-muted-foreground">一次购买，永久使用</span>
+                <span className="text-sm text-muted-foreground">一次赞助，永久使用</span>
               )}
             </div>
 
@@ -463,10 +463,10 @@ export function PurchaseSidebar({
                     className="w-full py-3 rounded-xl bg-foreground text-background font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2"
                   >
                     <i className={copied ? "ri-check-line" : "ri-link"} />
-                    {copied ? "已复制，去电脑端打开吧" : "复制链接，电脑端购买"}
+                    {copied ? "已复制，去电脑端打开吧" : "复制链接，电脑端赞助"}
                   </button>
                   <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                    移动端暂不支持扫码支付，请在电脑浏览器中打开链接购买
+                    移动端暂不支持扫码支付，请在电脑浏览器中打开链接赞助
                   </p>
                 </div>
               ) : (
@@ -474,8 +474,8 @@ export function PurchaseSidebar({
                   onClick={openBuyDialog}
                   className="w-full py-3 rounded-xl bg-foreground text-background font-medium hover:opacity-90 transition-all flex items-center justify-center gap-2"
                 >
-                  <i className={isFree ? "ri-gift-line" : "ri-shopping-cart-line"} />
-                  {isFree ? "开源获取" : "立即购买"}
+                  <i className={isFree ? "ri-gift-line" : "ri-heart-line"} />
+                  {isFree ? "开源获取" : "立即赞助"}
                 </button>
               )
             ) : (
@@ -528,7 +528,7 @@ export function PurchaseSidebar({
                 className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center gap-1"
               >
                 <i className="ri-search-line text-xs" />
-                已购买？查询购买记录
+                已赞助？查询赞助记录
               </button>
             )}
           </div>
@@ -569,7 +569,7 @@ export function PurchaseSidebar({
             >
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-foreground">查询购买记录</h2>
+                  <h2 className="text-lg font-semibold text-foreground">查询赞助记录</h2>
                   <button
                     onClick={() => setQueryOpen(false)}
                     className="text-muted-foreground hover:text-foreground transition-colors"
@@ -581,7 +581,7 @@ export function PurchaseSidebar({
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">
-                    购买邮箱
+                    赞助邮箱
                   </label>
                   <input
                     type="email"
@@ -593,7 +593,7 @@ export function PurchaseSidebar({
                     disabled={loading}
                   />
                   <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                    请输入购买时使用的邮箱，用于查询已获取的资源记录。
+                    请输入赞助时使用的邮箱，用于查询已获取的资源记录。
                   </p>
                 </div>
 
@@ -641,7 +641,7 @@ export function PurchaseSidebar({
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-foreground">
-                    {hasAnyUrl ? "获取资源" : orderNo ? "等待支付" : checkResult?.purchased ? "版本升级" : isFree ? "开源获取" : "购买作品"}
+                    {hasAnyUrl ? "获取资源" : orderNo ? "等待支付" : checkResult?.purchased ? "版本升级" : isFree ? "开源获取" : "赞助作品"}
                   </h2>
                   <button
                     onClick={() => { if (!loading) setBuyOpen(false) }}
@@ -698,9 +698,14 @@ export function PurchaseSidebar({
                     )}
 
                     {!isFree && (
-                      <p className="text-xs text-muted-foreground text-center">
-                        请妥善保管您的邮箱，后续可通过邮箱查询购买记录。
-                      </p>
+                      <>
+                        <p className="text-xs text-muted-foreground text-center">
+                          请妥善保管您的邮箱，后续可通过邮箱查询赞助记录。
+                        </p>
+                        <p className="text-xs text-muted-foreground text-center">
+                          如需退款或有其他疑问，请联系范米花儿。
+                        </p>
+                      </>
                     )}
                   </div>
                 ) : orderNo ? (
@@ -742,7 +747,7 @@ export function PurchaseSidebar({
                           {copied ? "已复制，去电脑端打开吧" : "复制页面链接"}
                         </button>
                         <p className="text-xs text-muted-foreground text-center">
-                          支付成功后将发邮件到您的邮箱<br />也可通过「查询购买记录」获取资源
+                          支付成功后将发邮件到您的邮箱<br />也可通过「查询赞助记录」获取资源
                         </p>
                       </div>
                     ) : wechatCreateLoading ? (
@@ -759,7 +764,7 @@ export function PurchaseSidebar({
                         />
                         <p className="text-sm font-medium text-foreground">请使用微信扫码支付</p>
                         <p className="text-xs text-muted-foreground">
-                          支付成功后将发邮件到您的邮箱，也可通过「查询购买记录」获取资源
+                          支付成功后将发邮件到您的邮箱，也可通过「查询赞助记录」获取资源
                         </p>
                       </div>
                     ) : (
@@ -866,6 +871,9 @@ export function PurchaseSidebar({
                       <p className="text-xs text-muted-foreground/70 leading-relaxed">
                         本站为个人网站，不提供账户系统与在线订单查询。邮件将作为您获取资源的唯一凭证，请务必填写常用邮箱。
                       </p>
+                      <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                        赞助后不支持自助退款，如需退款或有其他疑问，请联系范米花儿。
+                      </p>
                     </div>
                     {buyError && (
                       <div className="rounded-lg bg-destructive/10 text-destructive px-3 py-2 text-sm">{buyError}</div>
@@ -880,7 +888,7 @@ export function PurchaseSidebar({
                       ) : isFree ? (
                         <><i className="ri-gift-line" /> 开源获取</>
                       ) : (
-                        <><i className="ri-shopping-cart-line" /> 确认购买 ¥{displayPrice}</>
+                        <><i className="ri-heart-line" /> 确认赞助 ¥{displayPrice}</>
                       )}
                     </button>
                   </div>

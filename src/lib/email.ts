@@ -74,7 +74,7 @@ export async function sendOrderEmail(params: OrderEmailParams) {
 
   const subject = isFree
     ? `${workTitle} - 资源已就绪`
-    : `${workTitle} - 购买成功`
+    : `${workTitle} - 赞助成功`
 
   const deliverySection = buildDeliverySection(figmaUrl, deliveryUrl)
   const versionText = currentVersion ? ` V${currentVersion}` : ""
@@ -125,6 +125,96 @@ export async function sendOrderEmail(params: OrderEmailParams) {
   } catch (err) {
     console.error("[Email] 发送失败:", err)
   }
+}
+
+/** 退款通知邮件参数。 */
+export interface RefundEmailParams {
+  to: string
+  siteName: string
+  workTitle: string
+  orderNo: string
+  amount: number
+}
+
+/** 发送退款通知邮件。 */
+export async function sendRefundEmail(params: RefundEmailParams) {
+  const smtp = getTransporter()
+  if (!smtp) {
+    console.log("[Email] SMTP 未配置，跳过发送退款邮件")
+    return
+  }
+  const { to, siteName, workTitle, orderNo, amount } = params
+  const subject = `${workTitle} - 订单已退款`
+  const html = buildRefundHtml({ siteName, workTitle, orderNo, amount })
+  try {
+    const result = await smtp.sendMail({
+      from: `${siteName} <${FROM_ADDRESS}>`,
+      to,
+      subject,
+      html,
+    })
+    console.log("[Email] 退款邮件已发送:", result.messageId)
+  } catch (err) {
+    console.error("[Email] 退款邮件发送失败:", err)
+  }
+}
+
+function buildRefundHtml(p: {
+  siteName: string
+  workTitle: string
+  orderNo: string
+  amount: number
+}): string {
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body style="margin:0; padding:0; background-color:#0a0a0a; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#0a0a0a; padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px; background-color:#171717; border-radius:16px; border:1px solid #262626; overflow:hidden;">
+          <tr>
+            <td style="padding:32px 32px 0;">
+              <p style="margin:0; font-size:13px; color:#737373;">${p.siteName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:32px 32px 16px;">
+              <div style="width:56px; height:56px; border-radius:50%; background-color:#2e1a1a; display:inline-block; text-align:center; font-size:28px; line-height:56px;">↩️</div>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:0 32px 8px;">
+              <h1 style="margin:0; font-size:20px; font-weight:700; color:#fafafa;">订单已退款</h1>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding:0 32px 24px;">
+              <p style="margin:0; font-size:14px; color:#a3a3a3;">${p.workTitle}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:0 32px;">
+              <div style="height:1px; background-color:#262626;"></div>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:20px 32px 32px;">
+              <p style="margin:0 0 8px; font-size:13px; color:#737373;">订单号 ${p.orderNo}</p>
+              <p style="margin:0; font-size:18px; font-weight:600; color:#fafafa;">退款金额 ￥${p.amount.toFixed(2)}</p>
+              <p style="margin:12px 0 0; font-size:13px; color:#a3a3a3;">款项将原路退回，到账时间以支付渠道为准。如有疑问请联系范米花儿。</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
 }
 
 /* ------------------------------------------------------------------ */
@@ -227,8 +317,8 @@ function buildHtml(p: HtmlParams): string {
           <tr>
             <td align="center" style="padding:24px 32px 32px;">
               <p style="margin:0; font-size:12px; color:#525252; line-height:1.6;">
-                ${p.isFree ? "此邮件确认您已成功获取开源资源。" : "此邮件确认您的购买已完成，请妥善保管。"}
-                ${!p.wechat ? "<br />如有问题，请回复此邮件联系我们。" : ""}
+                ${p.isFree ? "此邮件确认您已成功获取开源资源。" : "此邮件确认您的赞助已完成，请妥善保管。"}
+                ${!p.wechat ? "<br />如有问题，请联系范米花儿。" : ""}
               </p>
             </td>
           </tr>
