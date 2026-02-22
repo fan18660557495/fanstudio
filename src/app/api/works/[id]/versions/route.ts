@@ -14,13 +14,13 @@ export async function GET(
   const session = await auth()
   const isAdmin = (session?.user as { role?: string })?.role === "ADMIN"
   const { id } = await params
-  const versions = await prisma.workVersion.findMany({
+  const versions = await prisma.workversion.findMany({
     where: { workId: id },
     orderBy: { createdAt: "desc" },
   })
   return NextResponse.json(
-    versions.map((v) => {
-      const row = { ...v, price: Number(v.price) }
+    versions.map((v: { id: string; workId: string; version: string; price: { toNumber: () => number }; changelog: string | null; figmaUrl: string | null; deliveryUrl: string | null; createdAt: Date; updatedAt: Date }) => {
+      const row = { ...v, price: v.price.toNumber() }
       return isAdmin ? row : sanitizeVersionForPublic(row)
     }),
   )
@@ -51,7 +51,7 @@ export async function POST(
   }
 
   // 检查版本号唯一
-  const existing = await prisma.workVersion.findUnique({
+  const existing = await prisma.workversion.findUnique({
     where: { workId_version: { workId: id, version: version.trim() } },
   })
   if (existing) {
@@ -59,7 +59,7 @@ export async function POST(
   }
 
   // 获取上一个版本（用于继承 deliveryUrl）
-  const latestVersion = await prisma.workVersion.findFirst({
+  const latestVersion = await prisma.workversion.findFirst({
     where: { workId: id },
     orderBy: { createdAt: "desc" },
   })
@@ -69,7 +69,7 @@ export async function POST(
 
   // 创建版本 + 更新 Work 快捷字段（事务）
   const [newVersion] = await prisma.$transaction([
-    prisma.workVersion.create({
+    prisma.workversion.create({
       data: {
         workId: id,
         version: version.trim(),

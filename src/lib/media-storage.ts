@@ -16,7 +16,7 @@ const UPLOAD_DIR = "public/uploads"
 const MAX_DIMENSION = 1920
 const WEBP_QUALITY = 80
 
-export type MediaEntityType = "POST" | "WORK_DESIGN" | "WORK_DEVELOPMENT" | "TUTORIAL"
+export type MediaEntityType = "POST" | "WORK_DESIGN" | "WORK_DEVELOPMENT" | "TUTORIAL" | "KNOWLEDGE_BASE"
 
 export interface SaveFileResult {
   /** 可直接在 <img src> 中使用的 URL，如 /uploads/POST/abc/xxx.webp */

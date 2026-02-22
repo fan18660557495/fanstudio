@@ -129,23 +129,31 @@ export function useTableControls<T extends { id: string }>(
     if (activeFilters.length === 0) return searched
     return searched.filter((item) =>
       activeFilters.every(([key, value]) => {
-        const field = item[key as keyof T]
-        if (field === null || field === undefined) return false
         /* support nested category?.name via "category.name" key */
         if (key.includes(".")) {
           const parts = key.split(".")
           let cur: unknown = item
           for (const p of parts) {
-            if (cur && typeof cur === "object") {
+            if (cur === null || cur === undefined) {
+              return false
+            }
+            if (typeof cur === "object") {
               cur = (cur as Record<string, unknown>)[p]
             } else {
               return false
             }
           }
-          return String(cur) === value
+          if (cur === null || cur === undefined) {
+            return false
+          }
+          return String(cur).toLowerCase() === value.toLowerCase()
         }
+        
+        // handle top-level fields
+        const field = item[key as keyof T]
+        if (field === null || field === undefined) return false
         if (typeof field === "boolean") return String(field) === value
-        return String(field) === value
+        return String(field).toLowerCase() === value.toLowerCase()
       })
     )
   }, [searched, filters])

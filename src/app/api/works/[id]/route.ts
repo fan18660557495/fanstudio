@@ -15,7 +15,7 @@ export async function GET(
   const { id } = await params
   const work = await prisma.work.findUnique({
     where: { id },
-    include: { category: true, tags: true },
+    include: { category: true, tag: true },
   })
   if (!work) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
@@ -90,10 +90,10 @@ export async function PUT(
       ...(categoryId != null && { categoryId: categoryId || null }),
       ...(sortOrder != null && { sortOrder: parseInt(String(sortOrder), 10) || 0 }),
       ...(tagIds != null && {
-        tags: { set: (tagIds as string[]).map((tid: string) => ({ id: tid })) },
+        tag: { set: (tagIds as string[]).map((tid: string) => ({ id: tid })) },
       }),
     },
-    include: { tags: true },
+    include: { tag: true },
   })
   return NextResponse.json(work)
 }

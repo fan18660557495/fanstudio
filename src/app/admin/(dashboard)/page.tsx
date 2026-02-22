@@ -36,7 +36,7 @@ export default async function AdminDashboardPage() {
     prisma.post.count(),
     prisma.work.count({ where: { workType: "DESIGN" } }),
     prisma.work.count({ where: { workType: "DEVELOPMENT" } }),
-    prisma.videoTutorial.count(),
+    prisma.videotutorial.count(),
     isViewer ? 0 : prisma.order.count(),
     isViewer ? { _sum: { amount: null } } : prisma.order.aggregate({
       where: { status: "PAID", paidAt: { gte: startOfMonth } },
@@ -49,7 +49,7 @@ export default async function AdminDashboardPage() {
     prisma.post.count({ where: { createdAt: { gte: startOfMonth } } }),
     prisma.work.count({ where: { workType: "DESIGN", createdAt: { gte: startOfMonth } } }),
     prisma.work.count({ where: { workType: "DEVELOPMENT", createdAt: { gte: startOfMonth } } }),
-    prisma.videoTutorial.count({ where: { createdAt: { gte: startOfMonth } } }),
+    prisma.videotutorial.count({ where: { createdAt: { gte: startOfMonth } } }),
     isViewer ? 0 : prisma.order.count({ where: { createdAt: { gte: startOfMonth } } }),
     isViewer ? [] : prisma.order.findMany({
       take: 5,

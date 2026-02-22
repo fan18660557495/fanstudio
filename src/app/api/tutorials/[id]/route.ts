@@ -10,9 +10,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
-  const item = await prisma.videoTutorial.findUnique({
+  const item = await prisma.videotutorial.findUnique({
     where: { id },
-    include: { tags: true },
+    include: { tag: true },
   })
   if (!item) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
@@ -40,7 +40,7 @@ export async function PUT(
     tagIds,
   } = body
 
-  const item = await prisma.videoTutorial.update({
+  const item = await prisma.videotutorial.update({
     where: { id },
     data: {
       ...(title != null && { title }),
@@ -52,10 +52,10 @@ export async function PUT(
       ...(typeof sortOrder === "number" && { sortOrder }),
       ...(categoryId !== undefined && { categoryId: categoryId || null }),
       ...(tagIds != null && {
-        tags: { set: (tagIds as string[]).map((tid: string) => ({ id: tid })) },
+        tag: { set: (tagIds as string[]).map((tid: string) => ({ id: tid })) },
       }),
     },
-    include: { tags: true },
+    include: { tag: true },
   })
   return NextResponse.json(item)
 }
@@ -67,6 +67,6 @@ export async function DELETE(
   const check = await requireAdmin()
   if (!check.authorized) return check.response
   const { id } = await params
-  await prisma.videoTutorial.delete({ where: { id } })
+  await prisma.videotutorial.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }

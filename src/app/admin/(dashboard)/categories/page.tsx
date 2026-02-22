@@ -68,6 +68,8 @@ function getEditLink(item: RelatedItem): string {
       return `/admin/works/${item.id}/edit`
     case "tutorial":
       return `/admin/tutorials/${item.id}/edit`
+    case "tool":
+      return `/admin/tools/${item.id}/edit`
     default:
       return "#"
   }
@@ -79,6 +81,7 @@ function getEntityLabel(entityType: string): string {
     case "design": return "设计"
     case "development": return "开发"
     case "tutorial": return "教程"
+    case "tool": return "工具"
     default: return ""
   }
 }
@@ -370,9 +373,11 @@ export default function CategoriesPage() {
                 label: "类型",
                 options: [
                   { label: "文章", value: "POST" },
+                  { label: "知识库", value: "KNOWLEDGE_BASE" },
                   { label: "设计作品", value: "DESIGN" },
                   { label: "开发作品", value: "DEVELOPMENT" },
                   { label: "视频教程", value: "TUTORIAL" },
+                  { label: "工具", value: "TOOL" },
                 ],
               }]}
               filterValues={{ type: catTypeFilter }}
@@ -421,9 +426,11 @@ export default function CategoriesPage() {
                         <TableCell>
                           <Badge variant="secondary">
                             {cat.type === "POST" ? "文章"
+                              : cat.type === "KNOWLEDGE_BASE" ? "知识库"
                               : cat.type === "DESIGN" ? "设计作品"
                               : cat.type === "DEVELOPMENT" ? "开发作品"
                               : cat.type === "TUTORIAL" ? "视频教程"
+                              : cat.type === "TOOL" ? "工具"
                               : "作品"}
                           </Badge>
                         </TableCell>
@@ -546,9 +553,11 @@ export default function CategoriesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="POST">文章</SelectItem>
+                  <SelectItem value="KNOWLEDGE_BASE">知识库</SelectItem>
                   <SelectItem value="DESIGN">设计作品</SelectItem>
                   <SelectItem value="DEVELOPMENT">开发作品</SelectItem>
                   <SelectItem value="TUTORIAL">视频教程</SelectItem>
+                  <SelectItem value="TOOL">工具</SelectItem>
                 </SelectContent>
               </Select>
             </div>

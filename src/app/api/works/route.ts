@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
 
   if (slug) {
     const work = await prisma.work.findUnique({
-      where: { slug },
-      include: { category: true, tags: true },
-    })
+    where: { slug },
+    include: { category: true, tag: true },
+  })
     if (!work) {
       return NextResponse.json({ error: "Not found" }, { status: 404 })
     }
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
   const list = await prisma.work.findMany({
     where,
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    include: { category: true, tags: true },
+    include: { category: true, tag: true },
   })
   const rows = list.map((w) => {
     const row = {

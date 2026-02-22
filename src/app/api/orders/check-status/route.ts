@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     select: {
       status: true,
       work: { select: { figmaUrl: true, deliveryUrl: true } },
-      version: { select: { figmaUrl: true, deliveryUrl: true } },
+      workversion: { select: { figmaUrl: true, deliveryUrl: true } },
     },
   })
 
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "订单不存在" }, { status: 404 })
   }
 
-  const figmaUrl = order.version?.figmaUrl ?? order.work?.figmaUrl ?? null
-  const deliveryUrl = order.version?.deliveryUrl ?? order.work?.deliveryUrl ?? null
+  const figmaUrl = order.workversion?.figmaUrl ?? order.work?.figmaUrl ?? null
+  const deliveryUrl = order.workversion?.deliveryUrl ?? order.work?.deliveryUrl ?? null
 
   return NextResponse.json({
     status: order.status,

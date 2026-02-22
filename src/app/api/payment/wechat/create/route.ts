@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     where: { orderNo },
     include: {
       work: { select: { id: true, title: true, figmaUrl: true, deliveryUrl: true } },
-      version: { select: { version: true, figmaUrl: true, deliveryUrl: true } },
+      workversion: { select: { version: true, figmaUrl: true, deliveryUrl: true } },
     },
   })
   if (!order) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
   }
 
   const description = order.work?.title
-    ? `${order.work.title}${order.version ? ` V${order.version.version}` : ""}`
+    ? `${order.work.title}${order.workversion ? ` V${order.workversion.version}` : ""}`
     : "作品赞助"
   const safeDesc = description.slice(0, 127)
 

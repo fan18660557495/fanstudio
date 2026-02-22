@@ -58,3 +58,6 @@ docs/DOMAIN_MIGRATION.md
 
 # deploy script (contains server IP)
 deploy.sh
+
+# Prisma temp client
+/prisma/client-temp/

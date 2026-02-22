@@ -12,10 +12,12 @@ import { defaultNav } from "@/lib/nav-config"
 import { getBeijingVolShort } from "@/lib/date-util"
 
 const navKeys = [
+  { key: "blog" as const, href: "/blog", icon: "ri-quill-pen-line" },
+  { key: "knowledgeBase" as const, href: "/knowledge-base", icon: "ri-book-line" },
   { key: "worksDesign" as const, href: "/works/design", icon: "ri-palette-line" },
   { key: "worksDev" as const, href: "/works/development", icon: "ri-code-s-slash-line" },
-  { key: "blog" as const, href: "/blog", icon: "ri-quill-pen-line" },
   { key: "tutorials" as const, href: "/tutorials", icon: "ri-video-line" },
+  { key: "tools" as const, href: "/tools", icon: "ri-tools-line" },
   { key: "about" as const, href: "/about", icon: "ri-user-line" },
 ]
 
@@ -24,6 +26,7 @@ export function MagazineSidebar({ width = 200 }: { width?: number }) {
   const { theme, setTheme } = useTheme()
   const { nav } = useNavConfig()
   const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
   const themeDarkLabel = defaultNav.themeDarkLabel ?? "暗色模式"
   const themeLightLabel = defaultNav.themeLightLabel ?? "亮色模式"

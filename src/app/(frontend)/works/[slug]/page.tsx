@@ -55,7 +55,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
         currentVersion: true,
         updatedAt: true,
         category: { select: { name: true } },
-        tags: { select: { id: true, name: true } },
+        tag: { select: { id: true, name: true } },
       },
     }),
     fetch(`${getBaseUrl()}/api/settings`, { cache: "no-store" })
@@ -146,7 +146,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             title={work.title}
             description={work.description ?? ""}
             categoryName={categoryName}
-            tags={work.tags}
+            tags={work.tag}
             price={work.price != null ? Number(work.price) : null}
             isFree={!!work.isFree}
             hasDeliveryUrl={hasDeliveryUrl}

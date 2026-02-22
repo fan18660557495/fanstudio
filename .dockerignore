@@ -1,0 +1,72 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+.next
+out
+build
+dist
+
+# Cache
+.turbo
+.eslintcache
+*.tsbuildinfo
+
+# Database
+prisma/migrations/*_*/
+!prisma/migrations/migration_lock.toml
+prisma/*.db
+prisma/*.db-journal
+prisma/client-temp
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Test files
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+__tests__
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+.tmp
+.temp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+.trae
+.cursorindexingignore
+LICENSE

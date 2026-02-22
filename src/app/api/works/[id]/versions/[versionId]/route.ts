@@ -13,7 +13,7 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
 
   const { id: workId, versionId } = await params
 
-  const version = await prisma.workVersion.findUnique({ where: { id: versionId } })
+  const version = await prisma.workversion.findUnique({ where: { id: versionId } })
   if (!version || version.workId !== workId) {
     return NextResponse.json({ error: "版本不存在" }, { status: 404 })
   }
@@ -39,10 +39,10 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
     where: { versionId, status: { not: "PAID" } },
     data: { versionId: null },
   })
-  await prisma.workVersion.delete({ where: { id: versionId } })
+  await prisma.workversion.delete({ where: { id: versionId } })
 
   if (isCurrentVersion) {
-    const prevVersion = await prisma.workVersion.findFirst({
+    const prevVersion = await prisma.workversion.findFirst({
       where: { workId },
       orderBy: { createdAt: "desc" },
     })
@@ -82,8 +82,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   const body = await request.json()
   const { price, changelog, figmaUrl, deliveryUrl } = body
 
-  // 查找版本
-  const version = await prisma.workVersion.findUnique({ where: { id: versionId } })
+  const version = await prisma.workversion.findUnique({ where: { id: versionId } })
   if (!version || version.workId !== workId) {
     return NextResponse.json({ error: "版本不存在" }, { status: 404 })
   }
@@ -108,7 +107,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   }
 
   // 更新版本
-  const updated = await prisma.workVersion.update({
+  const updated = await prisma.workversion.update({
     where: { id: versionId },
     data: updateData,
   })

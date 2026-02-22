@@ -64,7 +64,7 @@ export default function EditTutorialPage() {
         setVideoUrl(item.videoUrl ?? "")
         setThumbnail(item.thumbnail ?? "")
         setCategoryId(item.categoryId ?? "")
-        setTagIds(Array.isArray(item.tags) ? item.tags.map((t: { id: string }) => t.id) : [])
+        setTagIds(Array.isArray(item.tag) ? item.tag.map((t: { id: string }) => t.id) : [])
       })
       .catch(() => router.push("/admin/tutorials"))
       .finally(() => setLoading(false))

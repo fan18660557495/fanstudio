@@ -9,6 +9,7 @@ import { getSettingsRow } from "@/lib/settings-db"
 import { defaultNav, type NavConfig } from "@/lib/nav-config"
 import { defaultPageCopy, defaultPersonalName, defaultSiteName, normalizeSiteName, type PageCopy } from "@/lib/page-copy"
 import { defaultFooter, type FooterConfig } from "@/lib/version"
+import bcrypt from "bcryptjs"
 
 export const dynamic = "force-dynamic"
 
@@ -76,7 +77,7 @@ export async function PATCH(request: NextRequest) {
   if (!check.authorized) return check.response
   try {
     const body = await request.json()
-    const { siteName, avatar, socialLinks, about, nav, pageCopy, theme, footer } = body
+  const { siteName, avatar, socialLinks, about, nav, pageCopy, theme, footer, accessPassword } = body
 
     const existing = await prisma.settings.findUnique({
       where: { id: "settings" },
@@ -96,6 +97,9 @@ export async function PATCH(request: NextRequest) {
     }
     if (theme !== undefined) updatePayload.theme = theme
     if (footer !== undefined) updatePayload.footer = footer
+    if (accessPassword !== undefined) {
+      updatePayload.accessPassword = accessPassword ? bcrypt.hashSync(accessPassword, 10) : null
+    }
 
     if (existing) {
       const updateData: Record<string, unknown> = {}
@@ -107,6 +111,7 @@ export async function PATCH(request: NextRequest) {
       if (updatePayload.pageCopy !== undefined) updateData.pageCopy = updatePayload.pageCopy
       if (updatePayload.theme !== undefined) updateData.theme = updatePayload.theme
       if (updatePayload.footer !== undefined) updateData.footer = updatePayload.footer
+      if (updatePayload.accessPassword !== undefined) updateData.accessPassword = updatePayload.accessPassword
       if (Object.keys(updateData).length > 0) {
         await prisma.settings.update({
           where: { id: "settings" },
@@ -135,6 +140,7 @@ export async function PATCH(request: NextRequest) {
         pageCopy: pageCopy ?? undefined,
         theme: theme ?? undefined,
         footer: footer ?? undefined,
+        accessPassword: accessPassword ? bcrypt.hashSync(accessPassword, 10) : null,
       },
     })
     const { nav: mergedNav, pageCopy: mergedPageCopy, footer: mergedFooter } = mergeSettingsWithDefaults({

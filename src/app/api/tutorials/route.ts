@@ -11,9 +11,9 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get("slug")
 
     if (slug) {
-      const item = await prisma.videoTutorial.findUnique({
+      const item = await prisma.videotutorial.findUnique({
         where: { slug },
-        include: { category: true, tags: true },
+        include: { category: true, tag: true },
       })
       if (!item) {
         return NextResponse.json({ error: "Not found" }, { status: 404 })
@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(item)
     }
 
-    const list = await prisma.videoTutorial.findMany({
+    const list = await prisma.videotutorial.findMany({
       orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-      include: { category: true, tags: true },
+      include: { category: true, tag: true },
     })
     return NextResponse.json(list, {
       headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" },
@@ -50,12 +50,12 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const existing = await prisma.videoTutorial.findUnique({ where: { slug } })
+  const existing = await prisma.videotutorial.findUnique({ where: { slug } })
   if (existing) {
     return NextResponse.json({ error: "slug 已存在" }, { status: 400 })
   }
 
-  const item = await prisma.videoTutorial.create({
+  const item = await prisma.videotutorial.create({
     data: {
       title,
       slug: slug.trim(),

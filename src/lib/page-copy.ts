@@ -5,6 +5,8 @@ export type PageCopy = {
   blogDesc?: string
   tutorialsDesc?: string
   aboutDesc?: string
+  toolsDesc?: string
+  knowledgeBaseDesc?: string
   heroGreeting?: string
   heroPrefix?: string
   heroDesc?: string
@@ -16,6 +18,7 @@ export type PageCopy = {
   coverRatioWorksDev?: string
   coverRatioBlog?: string
   coverRatioTutorials?: string
+  coverRatioKnowledgeBase?: string
 }
 
 export const defaultPageCopy: PageCopy = {
@@ -24,6 +27,8 @@ export const defaultPageCopy: PageCopy = {
   blogDesc: "分享设计思考、工具技巧与行业见解",
   tutorialsDesc: "视频类教材合集，包含 B 站、YouTube 等",
   aboutDesc: "",
+  toolsDesc: "实用工具导航，分类整理各类在线工具",
+  knowledgeBaseDesc: "分享专业知识，帮助你快速成长",
   heroGreeting: "Hey,",
   heroPrefix: "You're in ",
   heroDesc: "Welcome to my world.",
@@ -31,10 +36,11 @@ export const defaultPageCopy: PageCopy = {
   aboutWorkTitle: "工作经历",
   aboutEducationTitle: "学习经历",
   aboutSkillsTitle: "技能",
-  coverRatioWorksDesign: "3:4",
-  coverRatioWorksDev: "3:4",
-  coverRatioBlog: "3:4",
-  coverRatioTutorials: "3:4",
+  coverRatioWorksDesign: "4:3",
+  coverRatioWorksDev: "4:3",
+  coverRatioBlog: "4:3",
+  coverRatioTutorials: "4:3",
+  coverRatioKnowledgeBase: "4:3",
 }
 
 /** 默认网站描述（SEO meta description） */

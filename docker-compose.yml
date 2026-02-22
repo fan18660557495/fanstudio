@@ -1,0 +1,49 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fanstudio-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3333}:3000"
+    environment:
+      - DATABASE_URL=mysql://fanstudio:${DB_PASSWORD:-fanstudio123}@db:3306/fanstudio
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3333}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-change-this-secret-in-production}
+      - NODE_ENV=production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - fanstudio-network
+    volumes:
+      - uploads-data:/app/public/uploads
+
+  db:
+    image: mysql:8.0
+    container_name: fanstudio-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-root123}
+      - MYSQL_DATABASE=fanstudio
+      - MYSQL_USER=fanstudio
+      - MYSQL_PASSWORD=${DB_PASSWORD:-fanstudio123}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - fanstudio-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-root123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  fanstudio-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+  uploads-data:

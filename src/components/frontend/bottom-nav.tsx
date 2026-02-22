@@ -12,6 +12,8 @@ const navItems = [
   { key: "worksDev" as const, href: "/works/development", icon: "ri-code-s-slash-line", activeIcon: "ri-code-s-slash-fill" },
   { key: "blog" as const, href: "/blog", icon: "ri-article-line", activeIcon: "ri-article-fill" },
   { key: "tutorials" as const, href: "/tutorials", icon: "ri-video-line", activeIcon: "ri-video-fill" },
+  { key: "tools" as const, href: "/tools", icon: "ri-tools-line", activeIcon: "ri-tools-fill" },
+  { key: "knowledgeBase" as const, href: "/knowledge-base", icon: "ri-book-line", activeIcon: "ri-book-fill" },
   { key: "about" as const, href: "/about", icon: "ri-user-line", activeIcon: "ri-user-fill" },
 ]
 

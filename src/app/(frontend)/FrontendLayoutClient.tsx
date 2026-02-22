@@ -1,6 +1,7 @@
 "use client"
 /** 前台布局客户端：侧栏宽度、主题、设置 Provider、底部导航、滚动进度。 */
 import { useState, useCallback, useEffect, useRef } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "@/components/frontend/bottom-nav"
 import { MagazineSidebar } from "@/components/frontend/MagazineSidebar"
@@ -25,7 +26,10 @@ export default function FrontendLayoutClient({
 }) {
   const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_WIDTH)
   const [isDragging, setIsDragging] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(true)
   const dragRef = useRef(false)
+  const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
@@ -34,6 +38,43 @@ export default function FrontendLayoutClient({
       if (w >= MIN_WIDTH && w <= MAX_WIDTH) setSidebarWidth(w)
     }
   }, [])
+
+  // 访问控制逻辑
+  useEffect(() => {
+    const checkAccess = async () => {
+      try {
+        // 检查是否设置了访问密码
+        if (!initial?.accessPasswordSet) {
+          setIsVerifying(false)
+          return
+        }
+
+        // 检查本地存储中的验证状态
+        const isVerified = localStorage.getItem("accessVerified") === "true"
+        const verifiedAt = localStorage.getItem("accessVerifiedAt")
+        
+        // 验证状态有效期为30天
+        const isVerificationValid = verifiedAt && 
+          (Date.now() - parseInt(verifiedAt)) < 30 * 24 * 60 * 60 * 1000
+
+        if (isVerified && isVerificationValid) {
+          setIsVerifying(false)
+          return
+        }
+
+        // 未验证或验证已过期，重定向到密码页面
+        if (pathname !== "/password") {
+          router.replace("/password")
+        }
+      } catch (error) {
+        console.error("访问控制检查错误:", error)
+      } finally {
+        setIsVerifying(false)
+      }
+    }
+
+    checkAccess()
+  }, [initial, pathname, router])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault()

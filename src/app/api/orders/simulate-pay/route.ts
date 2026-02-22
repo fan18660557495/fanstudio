@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     where: { orderNo },
     include: {
       work: { select: { figmaUrl: true, deliveryUrl: true } },
-      version: { select: { version: true, figmaUrl: true, deliveryUrl: true } },
+      workversion: { select: { version: true, figmaUrl: true, deliveryUrl: true } },
     },
   })
   if (!order) {
@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
     },
   })
 
-  const fUrl = order.version?.figmaUrl || order.work.figmaUrl || null
-  const dUrl = order.version?.deliveryUrl || order.work.deliveryUrl || null
+  const fUrl = order.workversion?.figmaUrl || order.work.figmaUrl || null
+  const dUrl = order.workversion?.deliveryUrl || order.work.deliveryUrl || null
 
   // 异步发送邮件（不阻塞响应）
   const work = await prisma.work.findUnique({
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     amount: Number(order.amount),
     figmaUrl: fUrl,
     deliveryUrl: dUrl,
-    currentVersion: order.version?.version || work?.currentVersion,
+    currentVersion: order.workversion?.version || work?.currentVersion,
     wechat: socialLinks.wechat || null,
   }).catch(() => {})
 

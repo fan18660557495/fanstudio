@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
-const VALID_TYPES = ["POST", "DESIGN", "DEVELOPMENT", "TUTORIAL", "WORK"] as const
+const VALID_TYPES = ["POST", "DESIGN", "DEVELOPMENT", "TUTORIAL", "WORK", "TOOL", "KNOWLEDGE_BASE"] as const
 
 /** 将名称转为 slug：小写、空格转连字符、去特殊字符。 */
 function toSlug(name: string): string {
@@ -20,22 +20,28 @@ function toSlug(name: string): string {
 
 type CategoryWithRelations = {
   type: string
-  _count: { posts: number; works: number; tutorials: number }
-  posts: { id: string; title: string }[]
-  works: { id: string; title: string; workType: string }[]
-  tutorials: { id: string; title: string }[]
+  _count: { post: number; work: number; videotutorial: number; tool: number; knowledgebasearticle: number }
+  post: { id: string; title: string }[]
+  work: { id: string; title: string; workType: string }[]
+  videotutorial: { id: string; title: string }[]
+  tool: { id: string; name: string }[]
+  knowledgebasearticle: { id: string; title: string }[]
 }
 
 function getCategoryCount(c: CategoryWithRelations): number {
   switch (c.type) {
     case "POST":
-      return c._count.posts
+      return c._count.post
     case "DESIGN":
     case "DEVELOPMENT":
     case "WORK":
-      return c._count.works
+      return c._count.work
     case "TUTORIAL":
-      return c._count.tutorials
+      return c._count.videotutorial
+    case "TOOL":
+      return c._count.tool
+    case "KNOWLEDGE_BASE":
+      return c._count.knowledgebasearticle
     default:
       return 0
   }
@@ -44,13 +50,17 @@ function getCategoryCount(c: CategoryWithRelations): number {
 function getCategoryItems(c: CategoryWithRelations): { id: string; title: string; entityType: string }[] {
   switch (c.type) {
     case "POST":
-      return c.posts.map((p) => ({ id: p.id, title: p.title, entityType: "post" }))
+      return c.post.map((p) => ({ id: p.id, title: p.title, entityType: "post" }))
     case "DESIGN":
     case "DEVELOPMENT":
     case "WORK":
-      return c.works.map((w) => ({ id: w.id, title: w.title, entityType: w.workType === "DEVELOPMENT" ? "development" : "design" }))
+      return c.work.map((w) => ({ id: w.id, title: w.title, entityType: w.workType === "DEVELOPMENT" ? "development" : "design" }))
     case "TUTORIAL":
-      return c.tutorials.map((t) => ({ id: t.id, title: t.title, entityType: "tutorial" }))
+      return c.videotutorial.map((t) => ({ id: t.id, title: t.title, entityType: "tutorial" }))
+    case "TOOL":
+      return c.tool.map((tool) => ({ id: tool.id, title: tool.name, entityType: "tool" }))
+    case "KNOWLEDGE_BASE":
+      return c.knowledgebasearticle.map((a) => ({ id: a.id, title: a.title, entityType: "knowledge_base" }))
     default:
       return []
   }
@@ -70,10 +80,12 @@ export async function GET(request: NextRequest) {
     where,
     orderBy: { name: "asc" },
     include: {
-      _count: { select: { posts: true, works: true, tutorials: true } },
-      posts: { select: { id: true, title: true }, take: 20 },
-      works: { select: { id: true, title: true, workType: true }, take: 20 },
-      tutorials: { select: { id: true, title: true }, take: 20 },
+      _count: { select: { post: true, work: true, videotutorial: true, tool: true, knowledgebasearticle: true } },
+      post: { select: { id: true, title: true }, take: 20 },
+      work: { select: { id: true, title: true, workType: true }, take: 20 },
+      videotutorial: { select: { id: true, title: true }, take: 20 },
+      tool: { select: { id: true, name: true }, take: 20 },
+      knowledgebasearticle: { select: { id: true, title: true }, take: 20 },
     },
   })
 

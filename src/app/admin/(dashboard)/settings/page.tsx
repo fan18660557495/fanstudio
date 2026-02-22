@@ -60,6 +60,8 @@ type NavData = {
   blog?: string
   about?: string
   tutorials?: string
+  tools?: string
+  knowledgeBase?: string
 }
 
 type PageCopyData = {
@@ -68,6 +70,8 @@ type PageCopyData = {
   blogDesc?: string
   tutorialsDesc?: string
   aboutDesc?: string
+  toolsDesc?: string
+  knowledgeBaseDesc?: string
   heroGreeting?: string
   heroPrefix?: string
   heroDesc?: string
@@ -79,6 +83,7 @@ type PageCopyData = {
   coverRatioWorksDev?: string
   coverRatioBlog?: string
   coverRatioTutorials?: string
+  coverRatioKnowledgeBase?: string
 }
 
 export default function SettingsPage() {
@@ -106,11 +111,15 @@ export default function SettingsPage() {
   const [navBlog, setNavBlog] = useState(defaultNav.blog ?? "")
   const [navAbout, setNavAbout] = useState(defaultNav.about ?? "")
   const [navTutorials, setNavTutorials] = useState(defaultNav.tutorials ?? "")
+  const [navTools, setNavTools] = useState(defaultNav.tools ?? "")
+  const [navKnowledgeBase, setNavKnowledgeBase] = useState(defaultNav.knowledgeBase ?? "")
   const [worksDesignDesc, setWorksDesignDesc] = useState(defaultPageCopy.worksDesignDesc ?? "")
   const [worksDevDesc, setWorksDevDesc] = useState(defaultPageCopy.worksDevDesc ?? "")
   const [blogDesc, setBlogDesc] = useState(defaultPageCopy.blogDesc ?? "")
   const [tutorialsDesc, setTutorialsDesc] = useState(defaultPageCopy.tutorialsDesc ?? "")
   const [aboutDesc, setAboutDesc] = useState(defaultPageCopy.aboutDesc ?? "")
+  const [toolsDesc, setToolsDesc] = useState(defaultPageCopy.toolsDesc ?? "")
+  const [knowledgeBaseDesc, setKnowledgeBaseDesc] = useState(defaultPageCopy.knowledgeBaseDesc ?? "")
   const [heroGreeting, setHeroGreeting] = useState(defaultPageCopy.heroGreeting ?? "")
   const [heroPrefix, setHeroPrefix] = useState(defaultPageCopy.heroPrefix ?? "")
   const [heroDesc, setHeroDesc] = useState(defaultPageCopy.heroDesc ?? "")
@@ -118,20 +127,23 @@ export default function SettingsPage() {
   const [aboutWorkTitle, setAboutWorkTitle] = useState(defaultPageCopy.aboutWorkTitle ?? "")
   const [aboutEducationTitle, setAboutEducationTitle] = useState(defaultPageCopy.aboutEducationTitle ?? "")
   const [aboutSkillsTitle, setAboutSkillsTitle] = useState(defaultPageCopy.aboutSkillsTitle ?? "")
-  const [coverRatioWorksDesign, setCoverRatioWorksDesign] = useState<CoverRatioId>(DEFAULT_COVER_RATIO)
-  const [coverRatioWorksDev, setCoverRatioWorksDev] = useState<CoverRatioId>(DEFAULT_COVER_RATIO)
-  const [coverRatioBlog, setCoverRatioBlog] = useState<CoverRatioId>(DEFAULT_COVER_RATIO)
-  const [coverRatioTutorials, setCoverRatioTutorials] = useState<CoverRatioId>(DEFAULT_COVER_RATIO)
+  const [coverRatioWorksDesign, setCoverRatioWorksDesign] = useState<CoverRatioId>("4:3")
+  const [coverRatioWorksDev, setCoverRatioWorksDev] = useState<CoverRatioId>("4:3")
+  const [coverRatioBlog, setCoverRatioBlog] = useState<CoverRatioId>("4:3")
+  const [coverRatioTutorials, setCoverRatioTutorials] = useState<CoverRatioId>("4:3")
+  const [coverRatioKnowledgeBase, setCoverRatioKnowledgeBase] = useState<CoverRatioId>("4:3")
   const [themeBase, setThemeBase] = useState<BaseColorId>(DEFAULT_THEME.base)
   const [themeAccent, setThemeAccent] = useState<AccentColorId>(DEFAULT_THEME.accent)
   const [footerCopyrightText, setFooterCopyrightText] = useState(defaultFooter.copyrightText ?? "")
   const [footerVersion, setFooterVersion] = useState(defaultFooter.version ?? "")
+  const [accessPassword, setAccessPassword] = useState("")
   const [savingTheme, setSavingTheme] = useState(false)
   const { setThemeConfig } = useThemeColor()
   const [loading, setLoading] = useState(true)
   const [savingGeneral, setSavingGeneral] = useState(false)
   const [savingProfile, setSavingProfile] = useState(false)
   const [savingNavPage, setSavingNavPage] = useState(false)
+  const [savingAccess, setSavingAccess] = useState(false)
 
   useEffect(() => {
     fetch("/api/settings", { credentials: "include" })
@@ -164,12 +176,14 @@ export default function SettingsPage() {
         setNavBlog(nav.blog ?? defaultNav.blog ?? "")
         setNavAbout(nav.about ?? defaultNav.about ?? "")
         setNavTutorials(nav.tutorials ?? defaultNav.tutorials ?? "")
+        setNavTools(nav.tools ?? defaultNav.tools ?? "")
         const copy = (data.pageCopy as PageCopyData) || {}
         setWorksDesignDesc(copy.worksDesignDesc ?? defaultPageCopy.worksDesignDesc ?? "")
         setWorksDevDesc(copy.worksDevDesc ?? defaultPageCopy.worksDevDesc ?? "")
         setBlogDesc(copy.blogDesc ?? defaultPageCopy.blogDesc ?? "")
         setTutorialsDesc(copy.tutorialsDesc ?? defaultPageCopy.tutorialsDesc ?? "")
         setAboutDesc(copy.aboutDesc ?? defaultPageCopy.aboutDesc ?? "")
+        setToolsDesc(copy.toolsDesc ?? defaultPageCopy.toolsDesc ?? "")
         setHeroGreeting(copy.heroGreeting ?? defaultPageCopy.heroGreeting ?? "")
         setHeroPrefix(copy.heroPrefix ?? defaultPageCopy.heroPrefix ?? "")
         setHeroDesc(copy.heroDesc ?? defaultPageCopy.heroDesc ?? "")
@@ -181,6 +195,7 @@ export default function SettingsPage() {
         setCoverRatioWorksDev(normalizeCoverRatio(copy.coverRatioWorksDev))
         setCoverRatioBlog(normalizeCoverRatio(copy.coverRatioBlog))
         setCoverRatioTutorials(normalizeCoverRatio(copy.coverRatioTutorials))
+        setCoverRatioKnowledgeBase(normalizeCoverRatio(copy.coverRatioKnowledgeBase))
         const ft = data.footer as FooterConfig | undefined
         if (ft && typeof ft === "object") {
           setFooterCopyrightText(ft.copyrightText ?? defaultFooter.copyrightText ?? "")
@@ -191,6 +206,8 @@ export default function SettingsPage() {
           setThemeBase(theme.base ?? DEFAULT_THEME.base)
           setThemeAccent(theme.accent ?? DEFAULT_THEME.accent)
         }
+        // 访问密码（只需要知道是否设置，不需要显示具体值）
+        setAccessPassword(data.accessPassword ? "********" : "")
       })
       .catch(() => toast.error("加载设置失败"))
       .finally(() => setLoading(false))
@@ -251,6 +268,8 @@ export default function SettingsPage() {
             blog: navBlog.trim() || (defaultNav.blog ?? ""),
             about: navAbout.trim() || (defaultNav.about ?? ""),
             tutorials: navTutorials.trim() || (defaultNav.tutorials ?? ""),
+            tools: navTools.trim() || (defaultNav.tools ?? ""),
+            knowledgeBase: navKnowledgeBase.trim() || (defaultNav.knowledgeBase ?? ""),
           },
           pageCopy: {
             worksDesignDesc: worksDesignDesc.trim(),
@@ -258,6 +277,8 @@ export default function SettingsPage() {
             blogDesc: blogDesc.trim(),
             tutorialsDesc: tutorialsDesc.trim(),
             aboutDesc: aboutDesc.trim(),
+            toolsDesc: toolsDesc.trim(),
+            knowledgeBaseDesc: knowledgeBaseDesc.trim(),
             heroGreeting: heroGreeting.trim(),
             heroPrefix: heroPrefix.trim() ? heroPrefix : "",
             heroDesc: heroDesc.trim(),
@@ -268,6 +289,7 @@ export default function SettingsPage() {
             coverRatioWorksDev,
             coverRatioBlog,
             coverRatioTutorials,
+            coverRatioKnowledgeBase,
           },
         }),
       })
@@ -359,6 +381,31 @@ export default function SettingsPage() {
     }
   }
 
+  async function saveAccess() {
+    setSavingAccess(true)
+    try {
+      const res = await fetch("/api/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          accessPassword: accessPassword.trim() || null,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        const detail = (data.detail as string) || (data.error as string) || "保存失败"
+        toast.error(detail)
+        return
+      }
+      // 更新本地状态以显示密码已设置
+      setAccessPassword(accessPassword.trim() ? "********" : "")
+      toast.success("访问密码已保存")
+    } finally {
+      setSavingAccess(false)
+    }
+  }
+
   /** 实时预览：更改主题选项后立即更新 Provider */
   function handleThemeBaseChange(id: BaseColorId) {
     setThemeBase(id)
@@ -395,6 +442,7 @@ export default function SettingsPage() {
           <TabsTrigger value="navpage">导航与页面</TabsTrigger>
           <TabsTrigger value="profile">关于我 / 头像</TabsTrigger>
           <TabsTrigger value="theme">外观主题</TabsTrigger>
+          <TabsTrigger value="access">访问控制</TabsTrigger>
           <TabsTrigger value="security">账户安全</TabsTrigger>
         </TabsList>
 
@@ -800,6 +848,63 @@ export default function SettingsPage() {
 
               <Separator />
 
+              {/* 工具导航 */}
+              <div className="space-y-4">
+                <p className="text-sm font-semibold text-foreground">工具导航</p>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="navTools">导航名称</Label>
+                    <Input id="navTools" value={navTools} onChange={(e) => setNavTools(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="toolsDesc">页面介绍（可选副标题）</Label>
+                    <Input
+                      id="toolsDesc"
+                      placeholder="留空则不显示"
+                      value={toolsDesc}
+                      onChange={(e) => setToolsDesc(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* 知识库 */}
+              <div className="space-y-4">
+                <p className="text-sm font-semibold text-foreground">知识库</p>
+                <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="navKnowledgeBase">导航名称</Label>
+                    <Input id="navKnowledgeBase" value={navKnowledgeBase} onChange={(e) => setNavKnowledgeBase(e.target.value)} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="knowledgeBaseDesc">页面介绍</Label>
+                    <Input
+                      id="knowledgeBaseDesc"
+                      placeholder="分享专业知识，帮助你快速成长"
+                      value={knowledgeBaseDesc}
+                      onChange={(e) => setKnowledgeBaseDesc(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="coverRatioKnowledgeBase">封面比例</Label>
+                    <Select value={coverRatioKnowledgeBase} onValueChange={(v) => setCoverRatioKnowledgeBase(normalizeCoverRatio(v))}>
+                      <SelectTrigger id="coverRatioKnowledgeBase">
+                        <SelectValue placeholder="选择比例" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COVER_RATIO_OPTIONS.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>{item.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
               {/* 关于 */}
               <div className="space-y-4">
                 <p className="text-sm font-semibold text-foreground">关于</p>
@@ -977,6 +1082,34 @@ export default function SettingsPage() {
           <Button onClick={saveTheme} disabled={savingTheme}>
             {savingTheme ? "保存中…" : "保存主题"}
           </Button>
+        </TabsContent>
+
+        {/* ==================== 访问控制 ==================== */}
+        <TabsContent value="access" className="space-y-6">
+          <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle>访问密码</CardTitle>
+              <CardDescription>设置访问密码后，访问前台页面需要输入密码验证</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="accessPassword">访问密码</Label>
+                <Input
+                  id="accessPassword"
+                  type="password"
+                  value={accessPassword}
+                  onChange={(e) => setAccessPassword(e.target.value)}
+                  placeholder="设置访问密码，留空则移除访问密码"
+                />
+                <p className="text-xs text-muted-foreground">
+                  设置后，访问前台页面需要输入此密码。验证状态将在本地存储30天，期间无需重复输入。
+                </p>
+              </div>
+              <Button onClick={saveAccess} disabled={savingAccess}>
+                {savingAccess ? "保存中…" : "保存"}
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ==================== 关于我 / 头像 ==================== */}

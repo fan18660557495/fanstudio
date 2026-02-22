@@ -51,14 +51,18 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
   const existing = await prisma.category.findUnique({
     where: { id },
     include: {
-      _count: { select: { posts: true, works: true, tutorials: true } },
+      _count: { select: { post: true, work: true, videotutorial: true, tool: true } },
     },
   })
   if (!existing) {
     return NextResponse.json({ error: "分类不存在" }, { status: 404 })
   }
 
-  const relatedCount = existing._count.posts + existing._count.works + existing._count.tutorials
+  const relatedCount = existing._count.post + existing._count.work + existing._count.videotutorial + existing._count.tool
+
+  if (existing.type === "TOOL" && existing._count.tool > 0) {
+    return NextResponse.json({ error: `该分类下有 ${existing._count.tool} 个工具，请先移动或删除这些工具` }, { status: 400 })
+  }
 
   if (relatedCount > 0) {
     // 解除关联后再删除
@@ -68,12 +72,12 @@ export async function DELETE(_request: NextRequest, { params }: Params) {
         data: { categoryId: null },
       })
     } else if (existing.type === "TUTORIAL") {
-      await prisma.videoTutorial.updateMany({
+      await prisma.videotutorial.updateMany({
         where: { categoryId: id },
         data: { categoryId: null },
       })
     } else {
-      // DESIGN, DEVELOPMENT, WORK
+      // DESIGN, DEVELOPMENT, WORK, KNOWLEDGE_BASE
       await prisma.work.updateMany({
         where: { categoryId: id },
         data: { categoryId: null },

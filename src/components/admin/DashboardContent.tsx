@@ -170,6 +170,7 @@ export default function DashboardContent({
   const [chartMounted, setChartMounted] = useState(false)
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setChartMounted(true)
   }, [])
 

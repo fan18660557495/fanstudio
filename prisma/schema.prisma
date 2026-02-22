@@ -1,6 +1,3 @@
-// Prisma Schema for 设计师个人网站
-// 数据库: 开发可用 PostgreSQL (Neon) 或 MySQL；生产部署推荐 MySQL（如阿里云服务器）
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,234 +7,268 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==================== 用户模型 ====================
-enum Role {
-  ADMIN   // 管理员：完整读写权限
-  VIEWER  // 体验账户：仅可浏览后台，无法修改
+model category {
+  id                   String                 @id @default(cuid())
+  name                 String                 @db.VarChar(100)
+  slug                 String                 @unique(map: "Category_slug_key") @db.VarChar(100)
+  type                 category_type
+  knowledgebasearticle knowledgebasearticle[]
+  post                 post[]
+  tool                 tool[]
+  videotutorial        videotutorial[]
+  work                 work[]
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(ADMIN)
-  name      String?  @db.VarChar(100)
-  avatar    String?  @db.Text
-  bio       String?  @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]
-  works     Work[]
-}
-
-// ==================== 文章模型 ====================
-model Post {
-  id          String     @id @default(cuid())
-  title       String     @db.VarChar(255)
-  slug        String     @unique @db.VarChar(255)
-  content     Json       // Plate 编辑器 JSON 内容
-  excerpt     String?    @db.Text
-  coverImage  String?    @db.Text
-  coverRatio  String     @default("3:4") @db.VarChar(10)
-  status      PostStatus @default(DRAFT)
+model knowledgebasearticle {
+  id          String      @id @default(cuid())
+  title       String      @db.VarChar(255)
+  slug        String      @unique(map: "KnowledgeBaseArticle_slug_key") @db.VarChar(255)
+  content     Json
+  excerpt     String?     @db.Text
+  coverImage  String?     @db.Text
+  coverRatio  String      @default("3:4") @db.VarChar(10)
+  status      post_status @default(DRAFT)
   categoryId  String?
-  category    Category?  @relation(fields: [categoryId], references: [id])
-  tags        Tag[]
   authorId    String
-  author      User       @relation(fields: [authorId], references: [id])
-  sortOrder   Int        @default(0)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   publishedAt DateTime?
+  user        user        @relation(fields: [authorId], references: [id], map: "KnowledgeBaseArticle_authorId_fkey")
+  category    category?   @relation(fields: [categoryId], references: [id], map: "KnowledgeBaseArticle_categoryId_fkey")
+  tag         tag[]       @relation("knowledgebasetagtopost")
 
-  @@index([status])
-  @@index([categoryId])
-  @@index([authorId])
+  @@index([authorId], map: "KnowledgeBaseArticle_authorId_idx")
+  @@index([categoryId], map: "KnowledgeBaseArticle_categoryId_idx")
+  @@index([status], map: "KnowledgeBaseArticle_status_idx")
 }
 
-// ==================== 作品模型 ====================
-enum WorkType {
-  DESIGN      // 设计作品
-  DEVELOPMENT // 开发作品
+model tag {
+  id                   String                 @id @default(cuid())
+  name                 String                 @unique(map: "Tag_name_key") @db.VarChar(50)
+  knowledgebasearticle knowledgebasearticle[] @relation("knowledgebasetagtopost")
+  post                 post[]                 @relation("posttotag")
+  videotutorial        videotutorial[]        @relation("tagtovideotutorial")
+  work                 work[]                 @relation("tagtowork")
 }
 
-model Work {
-  id             String        @id @default(cuid())
-  title          String        @db.VarChar(255)
-  slug           String        @unique @db.VarChar(255)
-  workType       WorkType      @default(DESIGN) // 设计作品 / 开发作品
-  description    String?       @db.Text
-  content        Json?         // 详细描述（Plate JSON）
-  coverImage     String        @db.Text
-  coverRatio     String        @default("3:4") @db.VarChar(10)
-  images         Json          // 详情图数组，存储为 JSON
-  currentVersion String?       @db.VarChar(20)  // 当前最新版本号
-  price          Decimal?      @db.Decimal(10, 2)
-  isFree         Boolean       @default(false)
-  figmaUrl       String?       @db.Text // Figma 文件链接（前台嵌入预览 + 购买后跳转）
-  deliveryUrl    String?       @db.Text // 自定义交付链接（GitHub / 网盘等，购买后可复制）
-  fileUrl        String?       @db.Text
-  fileName       String?       @db.VarChar(255)
-  demoUrl        String?       @db.Text // 在线体验链接（开发作品）
-  demoQrCode     String?       @db.Text // 扫码体验二维码 data URL（开发作品）
-  status         WorkStatus    @default(DRAFT)
-  categoryId     String?
-  category       Category?     @relation(fields: [categoryId], references: [id])
-  authorId       String
-  author         User          @relation(fields: [authorId], references: [id])
-  tags           Tag[]
-  orders         Order[]
-  versions       WorkVersion[]
-  sortOrder      Int           @default(0)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  @@index([status])
-  @@index([workType])
-  @@index([categoryId])
-  @@index([authorId])
-}
-
-// ==================== 作品版本模型 ====================
-model WorkVersion {
-  id        String   @id @default(cuid())
-  workId    String
-  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
-  version   String   @db.VarChar(20) // "1.0", "2.0" 等
-  price     Decimal  @db.Decimal(10, 2)
-  changelog   String?  @db.Text        // 更新说明
-  figmaUrl    String?  @db.Text        // Figma 文件链接
-  deliveryUrl String?  @db.Text        // 自定义交付链接（GitHub / 网盘等）
-  fileUrl     String?  @db.Text
-  fileName    String?  @db.VarChar(255)
-  createdAt DateTime @default(now())
-
-  orders    Order[]
-
-  @@unique([workId, version])
-  @@index([workId])
-}
-
-// ==================== 订单模型 ====================
-model Order {
-  id            String       @id @default(cuid())
-  orderNo       String       @unique @db.VarChar(64)
-  workId        String
-  work          Work         @relation(fields: [workId], references: [id])
-  versionId     String?
-  version       WorkVersion? @relation(fields: [versionId], references: [id])
-  upgradeFromId String?      @db.VarChar(64) // 升级来源版本 ID
-  amount        Decimal      @db.Decimal(10, 2)
-  status        OrderStatus  @default(PENDING)
-  buyerEmail    String       @db.VarChar(255)
-  buyerName     String?      @db.VarChar(100)
-  paymentId     String?      @db.VarChar(64) // 微信支付订单号
-  paidAt        DateTime?
-  downloadToken String?      @unique @db.VarChar(64)
-  downloadCount Int          @default(0)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-
-  @@index([status])
-  @@index([workId])
-  @@index([versionId])
-  @@index([buyerEmail])
-}
-
-// ==================== 分类模型 ====================
-model Category {
-  id        String          @id @default(cuid())
-  name      String          @db.VarChar(100)
-  slug      String          @unique @db.VarChar(100)
-  type      CategoryType
-  posts     Post[]
-  works     Work[]
-  tutorials VideoTutorial[]
-}
-
-// ==================== 标签模型 ====================
-model Tag {
-  id        String          @id @default(cuid())
-  name      String          @unique @db.VarChar(50)
-  posts     Post[]
-  works     Work[]
-  tutorials VideoTutorial[]
-}
-
-// ==================== 媒体文件模型 ====================
-// 归属类型：文章 / 设计作品 / 开发作品 / 视频教程
-model Media {
+model media {
   id         String   @id @default(cuid())
   name       String   @db.VarChar(255)
   url        String   @db.Text
-  type       String   @db.VarChar(50) // image, video, file
+  type       String   @db.VarChar(50)
   size       Int
   width      Int?
   height     Int?
-  entityType String   @db.VarChar(50) // POST | WORK_DESIGN | WORK_DEVELOPMENT | TUTORIAL
-  entityId   String   @db.VarChar(64) // Post.id / Work.id / VideoTutorial.id
+  entityType String   @db.VarChar(50)
+  entityId   String   @db.VarChar(64)
   createdAt  DateTime @default(now())
 
-  @@index([type])
-  @@index([entityType])
-  @@index([entityType, entityId])
+  @@index([entityType, entityId], map: "Media_entityType_entityId_idx")
+  @@index([entityType], map: "Media_entityType_idx")
+  @@index([type], map: "Media_type_idx")
 }
 
-// ==================== 网站设置模型 ====================
-model Settings {
-  id            String  @id @default("settings")
-  siteName      String  @default("Fan's Studio") @db.VarChar(255)
-  avatar        String? @db.Text
-  socialLinks   Json?   // { wechat, xiaohongshu, officialAccount, bilibili, figma, youshe, x, github }
-  about         Json?   // 关于页内容
-  nav           Json?   // { logoText, works, blog, about, tutorials } 导航品牌与名称
-  pageCopy      Json?   // 各页页头介绍与首页 Hero 文案
-  theme         Json?   // { base: "neutral", accent: "fanmihua" } 主题配置
-  footer        Json?   // { copyrightText: "范米花儿", version: "0.1.0" } 页脚版权与版本
-  updatedAt     DateTime @updatedAt
+model order {
+  id            String       @id @default(cuid())
+  orderNo       String       @unique(map: "Order_orderNo_key") @db.VarChar(64)
+  workId        String
+  versionId     String?
+  upgradeFromId String?      @db.VarChar(64)
+  amount        Decimal      @db.Decimal(10, 2)
+  status        order_status @default(PENDING)
+  buyerEmail    String       @db.VarChar(255)
+  buyerName     String?      @db.VarChar(100)
+  paymentId     String?      @db.VarChar(64)
+  paidAt        DateTime?
+  downloadToken String?      @unique(map: "Order_downloadToken_key") @db.VarChar(64)
+  downloadCount Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  workversion   workversion? @relation(fields: [versionId], references: [id], map: "Order_versionId_fkey")
+  work          work         @relation(fields: [workId], references: [id], map: "Order_workId_fkey")
+
+  @@index([buyerEmail], map: "Order_buyerEmail_idx")
+  @@index([status], map: "Order_status_idx")
+  @@index([versionId], map: "Order_versionId_idx")
+  @@index([workId], map: "Order_workId_idx")
 }
 
-// ==================== 视频教程模型 ====================
-model VideoTutorial {
+model post {
+  id          String      @id @default(cuid())
+  title       String      @db.VarChar(255)
+  slug        String      @unique(map: "Post_slug_key") @db.VarChar(255)
+  content     Json
+  excerpt     String?     @db.Text
+  coverImage  String?     @db.Text
+  status      post_status @default(DRAFT)
+  categoryId  String?
+  authorId    String
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  publishedAt DateTime?
+  coverRatio  String      @default("3:4") @db.VarChar(10)
+  user        user        @relation(fields: [authorId], references: [id], map: "Post_authorId_fkey")
+  category    category?   @relation(fields: [categoryId], references: [id], map: "Post_categoryId_fkey")
+  tag         tag[]       @relation("posttotag")
+
+  @@index([authorId], map: "Post_authorId_idx")
+  @@index([categoryId], map: "Post_categoryId_idx")
+  @@index([status], map: "Post_status_idx")
+}
+
+model settings {
+  id             String   @id @default("settings")
+  siteName       String   @default("Fan's Studio") @db.VarChar(255)
+  avatar         String?  @db.Text
+  socialLinks    Json?
+  about          Json?
+  nav            Json?
+  pageCopy       Json?
+  updatedAt      DateTime @updatedAt
+  theme          Json?
+  footer         Json?
+  accessPassword String?  @db.Text
+}
+
+model tool {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(100)
+  description String   @db.Text
+  link        String   @db.Text
+  categoryId  String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  category    category @relation(fields: [categoryId], references: [id], map: "Tool_categoryId_fkey")
+
+  @@index([categoryId], map: "Tool_categoryId_idx")
+  @@index([isActive], map: "Tool_isActive_idx")
+}
+
+model user {
+  id                   String                 @id @default(cuid())
+  email                String                 @unique(map: "User_email_key")
+  password             String
+  name                 String?                @db.VarChar(100)
+  avatar               String?                @db.Text
+  bio                  String?                @db.Text
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  role                 user_role              @default(ADMIN)
+  knowledgebasearticle knowledgebasearticle[]
+  post                 post[]
+  work                 work[]
+}
+
+model videotutorial {
   id          String    @id @default(cuid())
   title       String    @db.VarChar(255)
-  slug        String    @unique @db.VarChar(255)
+  slug        String    @unique(map: "VideoTutorial_slug_key") @db.VarChar(255)
   description String?   @db.Text
-  videoUrl    String    @db.Text   // 视频链接（B 站、YouTube 等）
+  videoUrl    String    @db.Text
   thumbnail   String?   @db.Text
-  coverRatio  String    @default("3:4") @db.VarChar(10)
   categoryId  String?
-  category    Category? @relation(fields: [categoryId], references: [id])
-  tags        Tag[]
   sortOrder   Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  coverRatio  String    @default("3:4") @db.VarChar(10)
+  category    category? @relation(fields: [categoryId], references: [id], map: "VideoTutorial_categoryId_fkey")
+  tag         tag[]     @relation("tagtovideotutorial")
 
-  @@index([categoryId])
+  @@index([categoryId], map: "VideoTutorial_categoryId_idx")
 }
 
-// ==================== 枚举类型 ====================
-enum PostStatus {
-  DRAFT
-  PUBLISHED
+model work {
+  id             String        @id @default(cuid())
+  title          String        @db.VarChar(255)
+  slug           String        @unique(map: "Work_slug_key") @db.VarChar(255)
+  workType       work_workType @default(DESIGN)
+  description    String?       @db.Text
+  content        Json?
+  coverImage     String        @db.Text
+  images         Json
+  currentVersion String?       @db.VarChar(20)
+  price          Decimal?      @db.Decimal(10, 2)
+  isFree         Boolean       @default(false)
+  figmaUrl       String?       @db.Text
+  deliveryUrl    String?       @db.Text
+  fileUrl        String?       @db.Text
+  fileName       String?       @db.VarChar(255)
+  demoUrl        String?       @db.Text
+  demoQrCode     String?       @db.Text
+  status         work_status   @default(DRAFT)
+  categoryId     String?
+  authorId       String
+  sortOrder      Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  coverRatio     String        @default("3:4") @db.VarChar(10)
+  order          order[]
+  user           user          @relation(fields: [authorId], references: [id], map: "Work_authorId_fkey")
+  category       category?     @relation(fields: [categoryId], references: [id], map: "Work_categoryId_fkey")
+  workversion    workversion[]
+  tag            tag[]         @relation("tagtowork")
+
+  @@index([authorId], map: "Work_authorId_idx")
+  @@index([categoryId], map: "Work_categoryId_idx")
+  @@index([status], map: "Work_status_idx")
+  @@index([workType], map: "Work_workType_idx")
 }
 
-enum WorkStatus {
-  DRAFT
-  PUBLISHED
+model workversion {
+  id          String   @id @default(cuid())
+  workId      String
+  version     String   @db.VarChar(20)
+  price       Decimal  @db.Decimal(10, 2)
+  changelog   String?  @db.Text
+  figmaUrl    String?  @db.Text
+  deliveryUrl String?  @db.Text
+  fileUrl     String?  @db.Text
+  fileName    String?  @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order       order[]
+  work        work     @relation(fields: [workId], references: [id], onDelete: Cascade, map: "WorkVersion_workId_fkey")
+
+  @@unique([workId, version], map: "WorkVersion_workId_version_key")
+  @@index([workId], map: "WorkVersion_workId_idx")
 }
 
-enum OrderStatus {
-  PENDING    // 待支付
-  PAID       // 已支付（数字商品自动交付）
-  CANCELLED  // 已取消
-  REFUNDED   // 已退款
-}
-
-enum CategoryType {
+enum category_type {
   POST
   WORK
   DESIGN
   DEVELOPMENT
   TUTORIAL
+  TOOL
+  KNOWLEDGE_BASE
+}
+
+enum user_role {
+  ADMIN
+  VIEWER
+}
+
+enum work_workType {
+  DESIGN
+  DEVELOPMENT
+}
+
+enum order_status {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum post_status {
+  DRAFT
+  PUBLISHED
+}
+
+enum work_status {
+  DRAFT
+  PUBLISHED
 }

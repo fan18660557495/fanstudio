@@ -139,12 +139,12 @@ export async function PUT(
   if (status === "PAID" && existing.status === "PENDING") {
     const work = await prisma.work.findUnique({
       where: { id: order.workId },
-      include: { versions: { orderBy: { createdAt: "desc" }, take: 1 } },
+      include: { workversion: { orderBy: { createdAt: "desc" }, take: 1 } },
     })
     if (work) {
       const ver = order.versionId
-        ? await prisma.workVersion.findUnique({ where: { id: order.versionId } })
-        : work.versions[0] || null
+        ? await prisma.workversion.findUnique({ where: { id: order.versionId } })
+        : work.workversion[0] || null
       const settings = await prisma.settings.findUnique({ where: { id: "settings" } })
       const socialLinks = (settings?.socialLinks as Record<string, string> | null) || {}
       sendOrderEmail({

@@ -69,7 +69,7 @@ export default function EditPostPage() {
         setExcerpt(post.excerpt ?? "")
         setCoverImage(post.coverImage ?? "")
         setCategoryId(post.categoryId ?? "")
-        setTagIds(Array.isArray(post.tags) ? post.tags.map((t: { id: string }) => t.id) : [])
+        setTagIds(Array.isArray(post.tag) ? post.tag.map((t: { id: string }) => t.id) : [])
         setCurrentStatus(post.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT")
       })
       .catch(() => router.push("/admin/posts"))

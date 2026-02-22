@@ -40,14 +40,6 @@ export interface BlockNoteEditorProps {
   entityId?: string
 }
 
-const HIDDEN_SLASH_MENU_KEYS = new Set([
-  "code_block",
-  "table",
-  "video",
-  "audio",
-  "file",
-])
-
 function createUploadFile(entityType?: MediaEntityType, entityId?: string) {
   return async (file: File): Promise<string> => {
     if (entityType && entityId) {
@@ -116,9 +108,7 @@ export function BlockNoteEditor({
   })
   const getSlashMenuItems = useMemo(
     () => async (query: string) => {
-      const items = getDefaultReactSlashMenuItems(editor).filter(
-        (item) => !HIDDEN_SLASH_MENU_KEYS.has(item.key),
-      )
+      const items = getDefaultReactSlashMenuItems(editor)
       return filterSuggestionItems(items, query)
     },
     [editor],

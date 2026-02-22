@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   if (slug) {
     const post = await prisma.post.findUnique({
       where: { slug },
-      include: { category: true, tags: true, author: true },
+      include: { category: true, tag: true, user: true },
     })
     if (!post) {
       return NextResponse.json({ error: "Not found" }, { status: 404 })
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   const list = await prisma.post.findMany({
     where: isAdmin && all ? undefined : { status: "PUBLISHED" },
     orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
-    include: { category: true, tags: true, author: true },
+    include: { category: true, tag: true, user: true },
   })
   const headers = isAdmin ? undefined : { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" }
   return NextResponse.json(list, { headers })

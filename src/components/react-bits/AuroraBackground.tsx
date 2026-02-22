@@ -4,11 +4,11 @@ import { motion } from "framer-motion"
 
 /** 5 个光球定义，颜色从 CSS 变量读取。 */
 const orbConfigs = [
-  { index: 1, size: 350, blur: 100, x: ["0%", "15%", "-10%", "0%"], y: ["0%", "-20%", "10%", "0%"], scale: [1, 1.2, 0.9, 1], duration: 20, initialX: "10%", initialY: "20%" },
-  { index: 2, size: 280, blur: 90, x: ["0%", "-20%", "10%", "0%"], y: ["0%", "15%", "-15%", "0%"], scale: [1, 0.85, 1.15, 1], duration: 25, initialX: "30%", initialY: "10%" },
-  { index: 3, size: 240, blur: 80, x: ["0%", "20%", "-15%", "0%"], y: ["0%", "10%", "-20%", "0%"], scale: [1, 1.1, 0.95, 1], duration: 18, initialX: "55%", initialY: "30%" },
-  { index: 5, size: 320, blur: 110, x: ["0%", "-15%", "20%", "0%"], y: ["0%", "-10%", "15%", "0%"], scale: [1, 0.9, 1.2, 1], duration: 22, initialX: "70%", initialY: "15%" },
-  { index: 7, size: 260, blur: 95, x: ["0%", "10%", "-20%", "0%"], y: ["0%", "20%", "-10%", "0%"], scale: [1, 1.15, 0.85, 1], duration: 28, initialX: "85%", initialY: "25%" },
+  { index: 1, size: 400, blur: 120, x: ["0%", "30%", "-20%", "0%"], y: ["0%", "-30%", "20%", "0%"], scale: [1, 1.4, 0.8, 1], duration: 15, initialX: "10%", initialY: "20%" },
+  { index: 2, size: 320, blur: 100, x: ["0%", "-30%", "20%", "0%"], y: ["0%", "25%", "-25%", "0%"], scale: [1, 0.7, 1.3, 1], duration: 18, initialX: "30%", initialY: "10%" },
+  { index: 3, size: 280, blur: 90, x: ["0%", "30%", "-25%", "0%"], y: ["0%", "20%", "-30%", "0%"], scale: [1, 1.25, 0.85, 1], duration: 12, initialX: "55%", initialY: "30%" },
+  { index: 5, size: 360, blur: 130, x: ["0%", "-25%", "30%", "0%"], y: ["0%", "-20%", "25%", "0%"], scale: [1, 0.8, 1.4, 1], duration: 16, initialX: "70%", initialY: "15%" },
+  { index: 7, size: 300, blur: 110, x: ["0%", "20%", "-30%", "0%"], y: ["0%", "30%", "-20%", "0%"], scale: [1, 1.3, 0.7, 1], duration: 20, initialX: "85%", initialY: "25%" },
 ]
 
 export function AuroraBackground({ className = "" }: { className?: string }) {

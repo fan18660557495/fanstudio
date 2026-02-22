@@ -30,6 +30,7 @@ export function ProseImageLightbox({ children }: ProseImageLightboxProps) {
       srcList.push(src)
       img.style.cursor = "zoom-in"
     })
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImages(srcList)
 
     const handleClick = (e: Event) => {

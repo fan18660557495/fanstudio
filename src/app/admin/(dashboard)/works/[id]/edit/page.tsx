@@ -118,7 +118,7 @@ export default function EditWorkPage() {
         setPrice(work.price != null ? String(work.price) : "")
         setIsFree(!!work.isFree)
         setCategoryId(work.categoryId ?? "")
-        setTagIds(Array.isArray(work.tags) ? work.tags.map((t: { id: string }) => t.id) : [])
+        setTagIds(Array.isArray(work.tag) ? work.tag.map((t: { id: string }) => t.id) : [])
         setCurrentStatus(work.status === "PUBLISHED" ? "PUBLISHED" : "DRAFT")
         // 加载版本列表
         try {

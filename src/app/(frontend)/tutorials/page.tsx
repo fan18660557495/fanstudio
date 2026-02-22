@@ -111,6 +111,7 @@ export default function TutorialsPage() {
   const moduleCoverRatio = pageCopy.coverRatioTutorials
   const [list, setList] = useState<Tutorial[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeCategory, setActiveCategory] = useState("全部")
 
   useEffect(() => {
     fetch("/api/tutorials")
@@ -119,6 +120,14 @@ export default function TutorialsPage() {
       .catch(() => setList([]))
       .finally(() => setLoading(false))
   }, [])
+
+  // 计算所有可用的分类
+  const categories = ["全部", ...Array.from(new Set(list.map((t) => t.category?.name).filter(Boolean)))] as string[]
+  
+  // 根据分类筛选教程
+  const filteredList = activeCategory === "全部" 
+    ? list 
+    : list.filter((t) => t.category?.name === activeCategory)
 
   return (
     <div className="min-h-screen px-6 md:px-12 lg:px-16 py-12 pb-28 lg:pb-16">
@@ -133,13 +142,33 @@ export default function TutorialsPage() {
       </FadeContent>
 
       <FadeContent delay={0.1}>
-        <div className="mb-12">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-3">
-            {sectionLabel}
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            {sectionDesc}
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+          <div>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-3">
+              {sectionLabel}
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              {sectionDesc}
+            </p>
+          </div>
+
+          {categories.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`tag transition-all ${
+                    activeCategory === cat
+                      ? "bg-foreground/10 border-foreground/20 text-foreground"
+                      : ""
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </FadeContent>
 
@@ -159,13 +188,13 @@ export default function TutorialsPage() {
             </div>
           ))}
         </div>
-      ) : list.length === 0 ? (
+      ) : filteredList.length === 0 ? (
         <div className="text-muted-foreground py-12">暂无{sectionLabel}</div>
       ) : (
         <>
           {/* 瀑布流卡片列表 */}
           <div className="columns-2 md:columns-3 lg:columns-4 gap-5">
-            {list.map((item, index) => {
+            {filteredList.map((item, index) => {
               const embedUrl = getEmbedUrl(item.videoUrl)
               return (
                 <FadeContent key={item.id} delay={0.1 + index * 0.05} className="break-inside-avoid mb-5">

@@ -12,6 +12,6 @@ export async function DELETE(request: NextRequest) {
   if (!Array.isArray(ids) || ids.length === 0) {
     return NextResponse.json({ error: "ids required" }, { status: 400 })
   }
-  await prisma.videoTutorial.deleteMany({ where: { id: { in: ids } } })
+  await prisma.videotutorial.deleteMany({ where: { id: { in: ids } } })
   return NextResponse.json({ ok: true })
 }

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
-import { WorkType } from "@prisma/client"
 import { requireAdmin } from "@/lib/require-admin"
 import prisma from "@/lib/prisma"
 import {
   saveFile,
-  deleteFile,
   getMediaTypeFromMime,
   type MediaEntityType,
 } from "@/lib/media-storage"
@@ -62,7 +60,7 @@ export async function GET(request: NextRequest) {
       entities = posts.map((p) => ({ id: p.id, title: p.title }))
     }
     if (entityType === "WORK_DESIGN" || entityType === "WORK_DEVELOPMENT") {
-      const workType = entityType === "WORK_DESIGN" ? WorkType.DESIGN : WorkType.DEVELOPMENT
+      const workType = entityType === "WORK_DESIGN" ? "DESIGN" : "DEVELOPMENT"
       const works = await prisma.work.findMany({
         where: { workType },
         orderBy: { createdAt: "desc" },
@@ -71,7 +69,7 @@ export async function GET(request: NextRequest) {
       entities = works.map((w) => ({ id: w.id, title: w.title }))
     }
     if (entityType === "TUTORIAL") {
-      const tutorials = await prisma.videoTutorial.findMany({
+      const tutorials = await prisma.videotutorial.findMany({
         orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
         select: { id: true, title: true },
       })

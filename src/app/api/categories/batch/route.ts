@@ -26,7 +26,7 @@ export async function DELETE(request: NextRequest) {
         data: { categoryId: null },
       })
     } else if (cat.type === "TUTORIAL") {
-      await prisma.videoTutorial.updateMany({
+      await prisma.videotutorial.updateMany({
         where: { categoryId: cat.id },
         data: { categoryId: null },
       })

@@ -1,6 +1,6 @@
 import { getSettingsRow } from "@/lib/settings-db"
 import { defaultNav, type NavConfig } from "@/lib/nav-config"
-import { defaultPageCopy, defaultSiteName, normalizeSiteName, type PageCopy } from "@/lib/page-copy"
+import { defaultPageCopy, normalizeSiteName, type PageCopy } from "@/lib/page-copy"
 import type { SocialLinks } from "@/lib/social-links"
 import { DEFAULT_THEME, type ThemeConfig } from "@/lib/theme-presets"
 
@@ -10,6 +10,7 @@ export type FrontendSettings = {
   siteName?: string | null
   socialLinks?: SocialLinks | null
   theme: ThemeConfig
+  accessPasswordSet: boolean
 }
 
 /** 服务端获取前台所需配置（nav、pageCopy、siteName、socialLinks），供 layout 首屏注入。 */
@@ -35,5 +36,6 @@ export async function getFrontendSettings(): Promise<FrontendSettings> {
     row?.theme && typeof row.theme === "object"
       ? { ...DEFAULT_THEME, ...(row.theme as Partial<ThemeConfig>) }
       : DEFAULT_THEME
-  return { nav, pageCopy, siteName, socialLinks, theme }
+  const accessPasswordSet = !!row?.accessPassword
+  return { nav, pageCopy, siteName, socialLinks, theme, accessPasswordSet }
 }

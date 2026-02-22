@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     where: { orderNo: outTradeNo },
     include: {
       work: { select: { title: true, figmaUrl: true, deliveryUrl: true, currentVersion: true } },
-      version: { select: { version: true, figmaUrl: true, deliveryUrl: true } },
+      workversion: { select: { version: true, figmaUrl: true, deliveryUrl: true } },
     },
   })
   if (!order) {
@@ -84,8 +84,8 @@ export async function POST(request: NextRequest) {
     },
   })
 
-  const figmaUrl = order.version?.figmaUrl ?? order.work?.figmaUrl ?? null
-  const deliveryUrl = order.version?.deliveryUrl ?? order.work?.deliveryUrl ?? null
+  const figmaUrl = order.workversion?.figmaUrl ?? order.work?.figmaUrl ?? null
+  const deliveryUrl = order.workversion?.deliveryUrl ?? order.work?.deliveryUrl ?? null
   const settings = await prisma.settings.findUnique({ where: { id: "settings" } })
   const socialLinks = (settings?.socialLinks as Record<string, string> | null) || {}
   sendOrderEmail({
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     amount: Number(order.amount),
     figmaUrl,
     deliveryUrl,
-    currentVersion: order.version?.version ?? order.work?.currentVersion ?? null,
+    currentVersion: order.workversion?.version ?? order.work?.currentVersion ?? null,
     wechat: socialLinks.wechat ?? null,
   }).catch(() => {})
 

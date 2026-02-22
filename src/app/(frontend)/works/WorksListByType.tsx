@@ -45,6 +45,7 @@ export function WorksListByType({
       : pageCopy.coverRatioWorksDev
   const [works, setWorks] = useState<Work[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeCategory, setActiveCategory] = useState("全部")
   const fallbackIcon = type === "design" ? "ri-palette-line" : "ri-code-s-slash-line"
 
   useEffect(() => {
@@ -54,6 +55,14 @@ export function WorksListByType({
       .catch(() => setWorks([]))
       .finally(() => setLoading(false))
   }, [type])
+
+  // 计算所有可用的分类
+  const categories = ["全部", ...Array.from(new Set(works.map((w) => w.category?.name).filter(Boolean)))] as string[]
+  
+  // 根据分类筛选作品
+  const filteredWorks = activeCategory === "全部" 
+    ? works 
+    : works.filter((w) => w.category?.name === activeCategory)
 
   return (
     <div className="min-h-screen px-6 md:px-12 lg:px-16 py-12 pb-28 lg:pb-16">
@@ -68,13 +77,33 @@ export function WorksListByType({
       </FadeContent>
 
       <FadeContent delay={0.1}>
-        <div className="mb-12">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-3">
-            {sectionLabel}
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            {sectionDesc}
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+          <div>
+            <h1 className="font-serif text-4xl md:text-5xl font-bold text-foreground tracking-tight mb-3">
+              {sectionLabel}
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              {sectionDesc}
+            </p>
+          </div>
+
+          {categories.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`tag transition-all ${
+                    activeCategory === cat
+                      ? "bg-foreground/10 border-foreground/20 text-foreground"
+                      : ""
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </FadeContent>
 
@@ -91,11 +120,11 @@ export function WorksListByType({
             </div>
           ))}
         </div>
-      ) : works.length === 0 ? (
+      ) : filteredWorks.length === 0 ? (
         <div className="text-muted-foreground py-12">暂无{sectionLabel}</div>
       ) : (
         <div className="columns-2 md:columns-3 lg:columns-4 gap-5">
-          {works.map((work, index) => (
+          {filteredWorks.map((work, index) => (
             <FadeContent key={work.id} delay={0.1 + index * 0.05} className="break-inside-avoid mb-5">
               <Link href={`/works/${work.slug}`} className="block transition-transform duration-300 hover:scale-[1.1]">
                 <GlowBorder className="group rounded-xl overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm flex flex-col">

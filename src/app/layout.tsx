@@ -2,8 +2,10 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
 import { getSettingsRow } from "@/lib/settings-db"
-import { normalizeSiteName, defaultSiteName, defaultSiteDescription } from "@/lib/page-copy"
+import { normalizeSiteName, defaultSiteDescription } from "@/lib/page-copy"
 import type { PageCopy } from "@/lib/page-copy"
+import { SessionProvider } from "next-auth/react"
+import { ThemeProvider } from "next-themes"
 import "remixicon/fonts/remixicon.css"
 import "./globals.css"
 
@@ -58,8 +60,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased bg-background text-foreground`}
         suppressHydrationWarning
       >
-        {children}
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <SessionProvider>
+            {children}
+            <Toaster />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -26,6 +26,7 @@ export function AdminDashboardClient({
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const w = parseInt(stored, 10)
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (w >= MIN_WIDTH && w <= MAX_WIDTH) setSidebarWidth(w)
     }
   }, [])

@@ -29,15 +29,15 @@ export async function POST(request: NextRequest) {
 
   const work = await prisma.work.findUnique({
     where: { id: workId },
-    include: { versions: { orderBy: { createdAt: "desc" }, take: 1 } },
+    include: { workversion: { orderBy: { createdAt: "desc" }, take: 1 } },
   })
   if (!work || work.status !== "PUBLISHED") {
     return NextResponse.json({ error: "作品不存在或未发布" }, { status: 404 })
   }
 
-  const targetVersionId = versionId || work.versions[0]?.id || null
+  const targetVersionId = versionId || work.workversion[0]?.id || null
   const targetVersion = targetVersionId
-    ? await prisma.workVersion.findUnique({ where: { id: targetVersionId } })
+    ? await prisma.workversion.findUnique({ where: { id: targetVersionId } })
     : null
 
   const hasDelivery = targetVersion?.figmaUrl || targetVersion?.deliveryUrl || work.figmaUrl || work.deliveryUrl

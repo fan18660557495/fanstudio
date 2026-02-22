@@ -22,9 +22,11 @@ const navGroups = [
     label: "内容管理",
     items: [
       { name: "文章管理", href: "/admin/posts", icon: "ri-article-line" },
+      { name: "知识库", href: "/admin/knowledge-base", icon: "ri-book-line" },
       { name: "设计作品", href: "/admin/works/design", icon: "ri-palette-line" },
       { name: "开发作品", href: "/admin/works/development", icon: "ri-code-s-slash-line" },
       { name: "视频教程", href: "/admin/tutorials", icon: "ri-video-line" },
+      { name: "工具管理", href: "/admin/tools", icon: "ri-tools-line" },
     ],
   },
   {
@@ -77,6 +79,7 @@ export function AdminSidebar({
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
   const displayName = siteName.trim() || defaultSiteName
   const firstChar = getFirstCharacter(displayName)

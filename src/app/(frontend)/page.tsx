@@ -77,26 +77,35 @@ export default function HomePage() {
   const [devWorks, setDevWorks] = useState<WorkItem[]>([])
   const [posts, setPosts] = useState<PostItem[]>([])
   const [tutorials, setTutorials] = useState<TutorialItem[]>([])
+  const [knowledgeBaseArticles, setKnowledgeBaseArticles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/settings").then((r) => r.json()),
-      fetch("/api/works?type=design").then((r) => r.json()),
-      fetch("/api/works?type=development").then((r) => r.json()),
-      fetch("/api/posts").then((r) => r.json()),
-      fetch("/api/tutorials").then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/settings", { cache: "no-store" }).then((r) => r.json()),
+      fetch("/api/works?type=design", { cache: "no-store" }).then((r) => r.json()),
+      fetch("/api/works?type=development", { cache: "no-store" }).then((r) => r.json()),
+      fetch("/api/posts", { cache: "no-store" }).then((r) => r.json()),
+      fetch("/api/tutorials", { cache: "no-store" }).then((r) => (r.ok ? r.json() : [])),
+      fetch("/api/knowledge-base/articles", { cache: "no-store" }).then((r) => (r.ok ? r.json() : [])),
     ])
-      .then(([s, designW, devW, p, t]) => {
+      .then(([s, designW, devW, p, t, kb]) => {
+        console.log("Settings response:", s);
         if (s && typeof s === "object" && !("error" in s)) {
-          setSettings(s)
+          setSettings(s);
+          console.log("Settings set successfully:", s);
+        } else {
+          console.error("Failed to get settings data:", s);
         }
-        setDesignWorks(Array.isArray(designW) ? designW : [])
-        setDevWorks(Array.isArray(devW) ? devW : [])
-        setPosts(Array.isArray(p) ? p : [])
-        setTutorials(Array.isArray(t) ? t : [])
+        setDesignWorks(Array.isArray(designW) ? designW : []);
+        setDevWorks(Array.isArray(devW) ? devW : []);
+        setPosts(Array.isArray(p) ? p : []);
+        setTutorials(Array.isArray(t) ? t : []);
+        setKnowledgeBaseArticles(Array.isArray(kb) ? kb : []);
       })
-      .catch(() => {})
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -110,14 +119,26 @@ export default function HomePage() {
     tags: p.tags,
   }))
 
+  const knowledgeBaseItems = knowledgeBaseArticles.slice(0, 4).map((article) => ({
+    id: article.id,
+    title: article.title,
+    excerpt: article.excerpt ?? null,
+    coverImage: article.coverImage ?? null,
+    slug: article.slug,
+    category: article.category,
+    tags: article.tags,
+  }))
+
   const designTitle = nav.worksDesign ?? defaultNav.worksDesign ?? ""
   const devTitle = nav.worksDev ?? defaultNav.worksDev ?? ""
   const notesTitle = nav.blog ?? defaultNav.blog ?? ""
   const tutorialsTitle = nav.tutorials ?? defaultNav.tutorials ?? ""
+  const knowledgeBaseTitle = "知识库"
   const designCoverRatio = pageCopy.coverRatioWorksDesign
   const devCoverRatio = pageCopy.coverRatioWorksDev
   const blogCoverRatio = pageCopy.coverRatioBlog
   const tutorialsCoverRatio = pageCopy.coverRatioTutorials
+  const knowledgeBaseCoverRatio = pageCopy.coverRatioKnowledgeBase
   const footerLogoText = (nav.logoText ?? defaultNav.logoText ?? "").trim() || (defaultNav.logoText ?? "")
   const heroDisplayName =
     settings?.siteName ??
@@ -135,6 +156,8 @@ export default function HomePage() {
         fallbackSocialLinks={contextSocialLinks}
         aboutLabel={nav.about ?? defaultNav.about ?? ""}
       />
+      <KnowledgeBaseSection title={knowledgeBaseTitle} items={knowledgeBaseItems} coverRatio={knowledgeBaseCoverRatio} loading={loading} />
+      <NotesSection title={notesTitle} articles={articles} coverRatio={blogCoverRatio} loading={loading} />
       <WorksGridSection
         title={designTitle}
         allLinkHref="/works/design"
@@ -151,8 +174,6 @@ export default function HomePage() {
         coverRatio={devCoverRatio}
         loading={loading}
       />
-      <NotesSection title={notesTitle} articles={articles} coverRatio={blogCoverRatio} loading={loading} />
-      <TutorialsSection title={tutorialsTitle} items={tutorials.slice(0, 4)} coverRatio={tutorialsCoverRatio} loading={loading} />
       <FooterSection
         settings={settings}
         logoText={footerLogoText}
@@ -230,7 +251,7 @@ function HeroSection({
   const heroPrefix = copy?.heroPrefix ?? defaultPageCopy.heroPrefix ?? ""
   const desc =
     copy?.heroDesc ?? (defaultPageCopy.heroDesc ?? "")
-  const avatar = settings?.avatar ?? ""
+  const avatar = settings?.avatar || ""
   const links = settings?.socialLinks ?? fallbackSocialLinks ?? {}
 
   return (
@@ -601,6 +622,63 @@ function TutorialsSection({
                   </div>
                 </GlowBorder>
               </a>
+            </FadeContent>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+
+function KnowledgeBaseSection({ title, items, coverRatio, loading }: { title: string; items: any[]; coverRatio?: string; loading?: boolean }) {
+  return (
+    <section className="px-6 md:px-12 lg:px-16 py-16 md:py-24 border-t border-border/40">
+      <SectionHeader title={title} linkHref="/knowledge-base" />
+
+      {loading ? (
+        <SkeletonGrid />
+      ) : items.length === 0 ? (
+        <p className="text-muted-foreground text-sm py-4">暂无{title}</p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
+          {items.map((item, index) => (
+            <FadeContent
+              key={item.id}
+              delay={0.1 + index * 0.05}
+              className={index === 0 ? "col-span-2 md:col-span-3" : "col-span-1"}
+            >
+              <Link href={`/knowledge-base?article=${item.slug}`} className="block transition-transform duration-300 hover:scale-[1.1]">
+                <GlowBorder className="group rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden flex flex-col">
+                  <div
+                    className="overflow-hidden bg-muted shrink-0"
+                    style={{ aspectRatio: coverRatioToCss(coverRatio) }}
+                  >
+                    <CoverImage src={item.coverImage} alt={item.title} fallbackIcon="ri-book-line" />
+                  </div>
+                  <div className="p-4 flex-1">
+                    <h3 className="text-base font-semibold text-foreground line-clamp-2 group-hover:text-foreground/80 transition-colors mb-1">
+                      {item.title}
+                    </h3>
+                    {item.excerpt && (
+                      <CardDescriptionHtml html={item.excerpt} className="mt-1.5" />
+                    )}
+                    {(item.category?.name || (item.tags && item.tags.length > 0)) && (
+                      <div className="flex flex-nowrap items-center gap-1.5 mt-2 overflow-hidden">
+                        {item.category?.name && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/5 text-primary/70 font-medium shrink-0 max-w-[3.5rem] truncate" title={item.category.name}>{item.category.name}</span>
+                        )}
+                        {(item.tags ?? []).slice(0, 3).map((tag: any) => (
+                          <span key={tag.id} className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0 max-w-[3.5rem] truncate" title={tag.name}>{tag.name}</span>
+                        ))}
+                        {(item.tags?.length ?? 0) > 3 && (
+                          <span className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground shrink-0">+{(item.tags?.length ?? 0) - 3}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </GlowBorder>
+              </Link>
             </FadeContent>
           ))}
         </div>
