@@ -1,8 +1,1 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  output: "standalone",
-  serverExternalPackages: ["@prisma/client", "prisma", "wechatpay-node-v3"],
-};
-
-export default nextConfig;
+aW1wb3J0IHR5cGUgeyBOZXh0Q29uZmlnIH0gZnJvbSAibmV4dCI7Cgpjb25zdCBuZXh0Q29uZmlnOiBOZXh0Q29uZmlnID0gewogIG91dHB1dDogInN0YW5kYWxvbmUiLAogIHNlcnZlckV4dGVybmFsUGFja2FnZXM6IFsiQHByaXNtYS9jbGllbnQiLCAicHJpc21hIiwgIndlY2hhdHBheS1ub2RlLXYzIl0sCn07CgpleHBvcnQgZGVmYXVsdCBuZXh0Q29uZmlnOwo=
