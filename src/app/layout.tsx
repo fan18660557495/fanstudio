@@ -7,6 +7,8 @@ import type { PageCopy } from "@/lib/page-copy"
 import "remixicon/fonts/remixicon.css"
 import "./globals.css"
 
+export const dynamic = "force-dynamic"
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

@@ -117,7 +117,7 @@ export function BlockNoteEditor({
   const getSlashMenuItems = useMemo(
     () => async (query: string) => {
       const items = getDefaultReactSlashMenuItems(editor).filter(
-        (item) => !HIDDEN_SLASH_MENU_KEYS.has(item.key),
+        (item) => !HIDDEN_SLASH_MENU_KEYS.has((item as unknown as { key: string }).key),
       )
       return filterSuggestionItems(items, query)
     },

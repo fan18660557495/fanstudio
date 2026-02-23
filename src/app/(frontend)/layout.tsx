@@ -2,6 +2,8 @@
 import { getFrontendSettings } from "@/lib/settings-server"
 import FrontendLayoutClient from "./FrontendLayoutClient"
 
+export const dynamic = "force-dynamic"
+
 export default async function FrontendLayout({
   children,
 }: {
