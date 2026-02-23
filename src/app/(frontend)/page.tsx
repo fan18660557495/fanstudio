@@ -379,9 +379,9 @@ function SkeletonCard() {
 
 function SkeletonGrid({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className={i === 0 ? "col-span-2 md:col-span-3" : "col-span-1"}>
+        <div key={i}>
           <SkeletonCard />
         </div>
       ))}
@@ -413,12 +413,11 @@ function WorksGridSection({
       ) : works.length === 0 ? (
         <p className="text-muted-foreground text-sm py-4">暂无{title}</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {works.map((work, index) => (
             <FadeContent
               key={work.id}
               delay={0.1 + index * 0.05}
-              className={index === 0 ? "col-span-2 md:col-span-3" : "col-span-1"}
             >
               <Link href={`/works/${work.slug}`} className="block transition-transform duration-300 hover:scale-[1.1]">
                 <GlowBorder className="group rounded-xl overflow-hidden border border-border/50 bg-card/50 backdrop-blur-sm flex flex-col">
@@ -486,12 +485,11 @@ function NotesSection({
       ) : articles.length === 0 ? (
         <p className="text-muted-foreground text-sm py-4">暂无{title}</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {articles.map((article, index) => (
             <FadeContent
               key={article.slug}
               delay={0.1 + index * 0.05}
-              className={index === 0 ? "col-span-2 md:col-span-3" : "col-span-1"}
             >
               <Link href={`/blog/${article.slug}`} className="block transition-transform duration-300 hover:scale-[1.1]">
                 <GlowBorder className="group rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden flex flex-col">
@@ -562,12 +560,11 @@ function TutorialsSection({
       ) : items.length === 0 ? (
         <p className="text-muted-foreground text-sm py-4">暂无{title}</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {items.map((item, index) => (
             <FadeContent
               key={item.id}
               delay={0.1 + index * 0.05}
-              className={index === 0 ? "col-span-2 md:col-span-3" : "col-span-1"}
             >
               <a href={item.videoUrl} target="_blank" rel="noopener noreferrer" className="block transition-transform duration-300 hover:scale-[1.1]">
                 <GlowBorder className="group rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden flex flex-col">
