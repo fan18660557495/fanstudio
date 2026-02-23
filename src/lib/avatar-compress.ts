@@ -3,7 +3,16 @@
 const MAX_SIZE = 512
 const JPEG_QUALITY = 0.78
 
-export function compressImageToDataUrl(file: File): Promise<string> {
+type CompressOptions = {
+  maxSize?: number
+  mimeType?: "image/jpeg" | "image/png"
+  jpegQuality?: number
+}
+
+export function compressImageToDataUrl(file: File, options: CompressOptions = {}): Promise<string> {
+  const maxSize = options.maxSize ?? MAX_SIZE
+  const mimeType = options.mimeType ?? "image/jpeg"
+  const jpegQuality = options.jpegQuality ?? JPEG_QUALITY
   return new Promise((resolve, reject) => {
     const img = new Image()
     const url = URL.createObjectURL(file)
@@ -13,13 +22,13 @@ export function compressImageToDataUrl(file: File): Promise<string> {
       const h = img.naturalHeight
       let width = w
       let height = h
-      if (w > MAX_SIZE || h > MAX_SIZE) {
+      if (w > maxSize || h > maxSize) {
         if (w >= h) {
-          width = MAX_SIZE
-          height = Math.round((h * MAX_SIZE) / w)
+          width = maxSize
+          height = Math.round((h * maxSize) / w)
         } else {
-          height = MAX_SIZE
-          width = Math.round((w * MAX_SIZE) / h)
+          height = maxSize
+          width = Math.round((w * maxSize) / h)
         }
       }
       const canvas = document.createElement("canvas")
@@ -31,7 +40,9 @@ export function compressImageToDataUrl(file: File): Promise<string> {
         return
       }
       ctx.drawImage(img, 0, 0, width, height)
-      const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY)
+      const dataUrl = mimeType === "image/png"
+        ? canvas.toDataURL("image/png")
+        : canvas.toDataURL("image/jpeg", jpegQuality)
       resolve(dataUrl)
     }
     img.onerror = () => {

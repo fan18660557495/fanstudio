@@ -72,6 +72,7 @@ type PageCopyData = {
   heroPrefix?: string
   heroDesc?: string
   siteDescription?: string
+  siteFavicon?: string
   aboutWorkTitle?: string
   aboutEducationTitle?: string
   aboutSkillsTitle?: string
@@ -83,6 +84,7 @@ type PageCopyData = {
 
 export default function SettingsPage() {
   const [siteName, setSiteName] = useState(defaultSiteName)
+  const [siteFavicon, setSiteFavicon] = useState("")
   const [avatar, setAvatar] = useState("")
   const [wechat, setWechat] = useState("")
   const [xiaohongshu, setXiaohongshu] = useState("")
@@ -100,6 +102,7 @@ export default function SettingsPage() {
   const [workExperience, setWorkExperience] = useState<WorkExperienceItem[]>([])
   const [education, setEducation] = useState<EducationItem[]>([])
   const [aboutSkills, setAboutSkills] = useState<SkillItem[]>([])
+  const faviconFileInputRef = useRef<HTMLInputElement>(null)
   const avatarFileInputRef = useRef<HTMLInputElement>(null)
   const [navWorksDesign, setNavWorksDesign] = useState(defaultNav.worksDesign ?? "")
   const [navWorksDev, setNavWorksDev] = useState(defaultNav.worksDev ?? "")
@@ -174,6 +177,7 @@ export default function SettingsPage() {
         setHeroPrefix(copy.heroPrefix ?? defaultPageCopy.heroPrefix ?? "")
         setHeroDesc(copy.heroDesc ?? defaultPageCopy.heroDesc ?? "")
         setSiteDescription(copy.siteDescription ?? defaultPageCopy.siteDescription ?? "")
+        setSiteFavicon(copy.siteFavicon ?? "")
         setAboutWorkTitle(copy.aboutWorkTitle ?? defaultPageCopy.aboutWorkTitle ?? "")
         setAboutEducationTitle(copy.aboutEducationTitle ?? defaultPageCopy.aboutEducationTitle ?? "")
         setAboutSkillsTitle(copy.aboutSkillsTitle ?? defaultPageCopy.aboutSkillsTitle ?? "")
@@ -222,6 +226,7 @@ export default function SettingsPage() {
           },
           pageCopy: {
             siteDescription: siteDescription.trim(),
+            siteFavicon: siteFavicon.trim(),
           },
         }),
       })
@@ -425,6 +430,73 @@ export default function SettingsPage() {
                 <p className="text-xs text-muted-foreground">
                   用于浏览器标签页和搜索引擎展示
                 </p>
+              </div>
+              <div className="space-y-2">
+                <Label>浏览器图标（Favicon）</Label>
+                {siteFavicon ? (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={siteFavicon}
+                      alt="Favicon 预览"
+                      className="h-10 w-10 rounded border border-border object-contain"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => faviconFileInputRef.current?.click()}
+                      >
+                        更换 PNG
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setSiteFavicon("")}
+                      >
+                        移除
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => faviconFileInputRef.current?.click()}
+                    >
+                      <i className="ri-image-add-line mr-1.5" />
+                      上传 PNG 图标
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      未上传时默认使用系统内置 favicon。上传后自动压缩为 256px 以内 PNG。
+                    </p>
+                  </div>
+                )}
+                <input
+                  ref={faviconFileInputRef}
+                  type="file"
+                  accept="image/png"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    e.target.value = ""
+                    if (!file) return
+                    if (file.type !== "image/png") {
+                      toast.error("仅支持 PNG 格式")
+                      return
+                    }
+                    compressImageToDataUrl(file, {
+                      maxSize: 256,
+                      mimeType: "image/png",
+                    })
+                      .then(setSiteFavicon)
+                      .catch(() => toast.error("图标压缩失败，请换一张 PNG"))
+                  }}
+                />
               </div>
 
               <Separator />

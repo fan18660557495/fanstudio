@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google"
 import { Toaster } from "@/components/ui/sonner"
 import { getSettingsRow } from "@/lib/settings-db"
-import { normalizeSiteName, defaultSiteName, defaultSiteDescription } from "@/lib/page-copy"
+import { normalizeSiteName, defaultSiteDescription } from "@/lib/page-copy"
 import type { PageCopy } from "@/lib/page-copy"
 import "remixicon/fonts/remixicon.css"
 import "./globals.css"
@@ -31,6 +31,11 @@ export async function generateMetadata(): Promise<Metadata> {
     ? (row.pageCopy as PageCopy)
     : {}
   const description = pageCopy.siteDescription?.trim() || defaultSiteDescription
+  const siteFavicon = pageCopy.siteFavicon?.trim()
+  const defaultFavicon = row?.updatedAt
+    ? `/icon?default=${row.updatedAt.getTime()}`
+    : "/icon"
+  const favicon = siteFavicon || defaultFavicon
 
   return {
     title: {
@@ -38,6 +43,11 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${siteName}`,
     },
     description,
+    icons: {
+      icon: favicon,
+      apple: favicon,
+      shortcut: favicon,
+    },
   }
 }
 

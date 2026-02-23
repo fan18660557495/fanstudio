@@ -9,6 +9,7 @@ export type PageCopy = {
   heroPrefix?: string
   heroDesc?: string
   siteDescription?: string
+  siteFavicon?: string
   aboutWorkTitle?: string
   aboutEducationTitle?: string
   aboutSkillsTitle?: string
